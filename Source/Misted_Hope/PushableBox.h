@@ -4,12 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InteractableObjects.h"
 #include "PushableBox.generated.h"
 
 class UBoxComponent;
 
-UCLASS()
-class MISTED_HOPE_API APushableBox : public AActor
+UCLASS(config=Game)
+class  APushableBox : public AInteractableObjects
 {
 	GENERATED_BODY()
 	
@@ -25,19 +26,14 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
-		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-	UFUNCTION()
-		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
-
-public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pushable)
-		class USceneComponent* m_RootObject; 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pushable)
-		class UStaticMeshComponent* m_Mesh; 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Pushable)
+	UPROPERTY(EditAnywhere, Category = Object)
+		class UStaticMeshComponent* m_Mesh;
+	//UPROPERTY(Category = Object, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
+	//	class UBoxComponent* m_BoxComponent;
+	UPROPERTY(EditAnywhere, Category = Object)
 		class UShapeComponent* m_TriggerBox; 
 
-	bool m_bIsGrabbed; 
+	void PushObject(float amount, FVector direction);
+	void PullObject(float amount, FVector direction); 
+
 };

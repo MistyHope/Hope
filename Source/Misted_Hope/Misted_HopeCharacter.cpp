@@ -173,7 +173,7 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 	else
 		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - (GetActorForwardVector() * 70), ECC_WorldStatic);
 
-	if (!hitResult)
+	if (!hitResult && !m_bIsPushing)
 	{
 		AddMovementInput(GetActorForwardVector(), Value);
 	}
@@ -212,8 +212,12 @@ void AMisted_HopeCharacter::Interaction()
 
 void AMisted_HopeCharacter::PushObjects()
 {
-	if(m_bNearBox && !m_bIsPushing)
+	if (!m_bIsPushing && m_bNearBox)
+	{
 		m_bIsPushing = true;
+		
+
+	}
 }
 
 void AMisted_HopeCharacter::UnPushObjects()
@@ -227,38 +231,59 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
 	{
 		m_bNearBox = true; 
+		m_NearActor = OtherActor; 
 	}
 	
-
 }
 
 void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
-	{
-		if (m_bIsPushing)
-		{
-			m_bIsPushing = false; 
-		}
-	}
-	m_bNearBox = false; 
+
+	m_bNearBox = false;
+	m_NearActor = nullptr; 
+	m_bIsPushing = false; 
 }
 
 void AMisted_HopeCharacter::UpdateCharacter()
 {
 	// Update animation to match the motion
 	UpdateAnimation();
+
 	//SideViewCameraComponent
+
+	USceneComponent* Root = GetRootComponent(); 
 
 	FHitResult RV_Hit(ForceInit);
 
+	if (m_bIsPushing)
+	{
+		FVector PlayerToBox = m_NearActor->GetActorLocation() - GetActorLocation();
+		PlayerToBox.Normalize();
+		float angle = FVector::DotProduct(GetActorForwardVector(), PlayerToBox);
+		angle = FMath::RadiansToDegrees(acosf(angle));
+		APushableBox* pushableBox = (APushableBox*)m_NearActor->GetClass(); 
+		if (angle < 90)
+		{
+			if (m_bLookRight)
+				pushableBox->PullObject(20000, -GetActorForwardVector());
+			else
+				pushableBox->PushObject(20000, GetActorForwardVector()); 
+		}
+		else
+		{
+			if (m_bLookRight)
+				pushableBox->PushObject(20000, GetActorForwardVector());
+			else
+				pushableBox->PullObject(20000, -GetActorForwardVector()); 
+		}
+	}
 
 	bool hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(0, 0, 500), ECC_WorldStatic);
 	if (hitResult && m_RingOrigin.IsZero())
 	{
 		FVector actorLoc;
 		actorLoc = RV_Hit.GetActor()->GetActorLocation();
-		bool originResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, actorLoc, actorLoc + FVector(0, 9999, 0), ECC_WorldStatic);
+		bool originResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, actorLoc, actorLoc + FVector(0, 999999, 0), ECC_WorldStatic);
 		if (originResult)
 		{
 			float dist = RV_Hit.Distance;
