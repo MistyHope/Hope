@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//#include "InteractableObjects.h"
+#include "InteractableObjects.h"
 #include "PushableBox.generated.h"
 
 class UBoxComponent;
 
 UCLASS(config=Game)
-class  APushableBox : public AActor
+class  APushableBox : public AInteractableObjects
 {
 	GENERATED_BODY()
 	
@@ -28,12 +28,8 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Object)
 		class UStaticMeshComponent* m_Mesh;
-	//UPROPERTY(Category = Object, VisibleAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
-	//	class UBoxComponent* m_BoxComponent;
 	UPROPERTY(EditAnywhere, Category = Object)
 		class UShapeComponent* m_TriggerBox; 
 
-	void PushObject(float amount, FVector direction);
-	void PullObject(float amount, FVector direction); 
 
 };

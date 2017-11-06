@@ -230,6 +230,8 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 {
 	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
 	{
+		USceneComponent* Root = OtherActor->GetRootComponent(); 
+		UE_LOG(LogTemp, Warning, TEXT("Root: %s"), *Root->GetFName().ToString()); 
 		m_bNearBox = true; 
 		m_NearActor = OtherActor; 
 	}
@@ -249,34 +251,7 @@ void AMisted_HopeCharacter::UpdateCharacter()
 	// Update animation to match the motion
 	UpdateAnimation();
 
-	//SideViewCameraComponent
-
-	USceneComponent* Root = GetRootComponent(); 
-
 	FHitResult RV_Hit(ForceInit);
-
-	if (m_bIsPushing)
-	{
-		FVector PlayerToBox = m_NearActor->GetActorLocation() - GetActorLocation();
-		PlayerToBox.Normalize();
-		float angle = FVector::DotProduct(GetActorForwardVector(), PlayerToBox);
-		angle = FMath::RadiansToDegrees(acosf(angle));
-		APushableBox* pushableBox = (APushableBox*)m_NearActor->GetClass(); 
-		if (angle < 90)
-		{
-			if (m_bLookRight)
-				pushableBox->PullObject(20000, -GetActorForwardVector());
-			else
-				pushableBox->PushObject(20000, GetActorForwardVector()); 
-		}
-		else
-		{
-			if (m_bLookRight)
-				pushableBox->PushObject(20000, GetActorForwardVector());
-			else
-				pushableBox->PullObject(20000, -GetActorForwardVector()); 
-		}
-	}
 
 	bool hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(0, 0, 500), ECC_WorldStatic);
 	if (hitResult && m_RingOrigin.IsZero())

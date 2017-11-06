@@ -4,11 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//#include "InteractableObjects.h"
+#include "InteractableObjects.h"
 #include "Climbable_Objects.generated.h"
 
 UCLASS(config=Game)
-class AClimbable_Objects : public AActor
+class AClimbable_Objects : public AInteractableObjects
 {
 	GENERATED_BODY()
 	

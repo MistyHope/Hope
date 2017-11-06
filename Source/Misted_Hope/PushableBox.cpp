@@ -28,24 +28,5 @@ void APushableBox::BeginPlay()
 void APushableBox::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 	//Changes the RootState of the object to provide the object to get moved from the character without getting grabbed
 }
-
-
-void APushableBox::PushObject(float amount, FVector direction)
-{
-	UPrimitiveComponent* prim = GetRootPrimitiveComponent(); 
-	UE_LOG(LogTemp, Warning, TEXT("Root: %s"), *prim->GetFName().ToString()); 
-	//UE_LOG(LogTemp, Warning, TEXT("Primitive : %s"), *primitive->GetFName().ToString()); 
-
-}
-
-void APushableBox::PullObject(float amount, FVector direction)
-{
-
-}
-
-
-
-

@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "InteractableObjects.generated.h"
 
-UCLASS()
+UCLASS(abstract)
 class MISTED_HOPE_API AInteractableObjects : public AActor
 {
 	GENERATED_BODY()
@@ -23,6 +23,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	
+	UPROPERTY(EditAnywhere, Category = BaseComponents, meta = (AllowPrivateAccess = "true"))
+		class UBoxComponent* m_BoxComponent; 
 	
 };
