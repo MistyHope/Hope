@@ -4,10 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "InteractableObjects.h"
 #include "Climbable_Objects.generated.h"
 
-UCLASS()
-class MISTED_HOPE_API AClimbable_Objects : public AActor
+UCLASS(config=Game)
+class AClimbable_Objects : public AInteractableObjects
 {
 	GENERATED_BODY()
 	
@@ -23,12 +24,6 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Climbable)
-		class USceneComponent* m_ObjectRoot; 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Climbable)
-		class UStaticMeshComponent* m_Mesh;  
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Climbable)
-		class UShapeComponent* m_ClimbTrigger;
 
 	
 	
