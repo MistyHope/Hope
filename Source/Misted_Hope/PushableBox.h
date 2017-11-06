@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "InteractableObjects.h"
+//#include "InteractableObjects.h"
 #include "PushableBox.generated.h"
 
 class UBoxComponent;
 
 UCLASS(config=Game)
-class  APushableBox : public AInteractableObjects
+class  APushableBox : public AActor
 {
 	GENERATED_BODY()
 	

@@ -4,17 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-//#include "InteractableObjects.h"
-#include "Climbable_Objects.generated.h"
+#include "InteractableObjects.generated.h"
 
-UCLASS(config=Game)
-class AClimbable_Objects : public AActor
+UCLASS()
+class MISTED_HOPE_API AInteractableObjects : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AClimbable_Objects();
+	AInteractableObjects();
 
 protected:
 	// Called when the game starts or when spawned
@@ -23,7 +22,6 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
 
 	
 	
