@@ -64,6 +64,8 @@ public:
 	UPROPERTY()
 		bool m_bLookRight; 
 
+	class AActor* m_NearActor; 
+
 	bool m_bNearBox; 
 
 
