@@ -23,5 +23,18 @@ Saved
 *.suo
 
 *.xcodeproj
+<<<<<<< Updated upstream
 
 *.xcworkspace
+=======
+*.xcworkspace
+Config/DefaultEditor\.ini
+
+Content/2DSideScrollerCPP/Maps/2DSideScrollerExampleMap\.umap
+
+Content/nhjk\.uasset
+
+Content/Objects/bjhb\.uasset
+
+Misted_Hope\.uproject
+>>>>>>> Stashed changes
