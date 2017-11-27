@@ -30,6 +30,4 @@ public:
 		class UStaticMeshComponent* m_Mesh;
 	UPROPERTY(EditAnywhere, Category = Object)
 		class UShapeComponent* m_TriggerBox; 
-
-
 };

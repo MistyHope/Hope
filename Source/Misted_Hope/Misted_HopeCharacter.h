@@ -20,6 +20,7 @@ UENUM(BlueprintType)
 enum class EInteractions : uint8
 {
 	Hide
+	,Push
 };
 
 
@@ -63,11 +64,15 @@ public:
 		FVector m_RingOrigin; 
 	UPROPERTY()
 		bool m_bLookRight; 
-
+	UPROPERTY(EditAnywhere, Category = AddForce)
+		int32 m_iForceValue;
+	UPROPERTY(EditAnywhere, Category = CharacterBasics)
+		float m_CharacterHeight;
+	UPROPERTY(EditAnywhere, Category = CharacterBasics)
+		float m_CharacterWidth; 
 	class AActor* m_NearActor; 
 
 	bool m_bNearBox; 
-
 
 public: 
 	/** Called to choose the correct animation to play based on the character's movement state */
@@ -76,9 +81,7 @@ public:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
-	void Crouch();
-
-	void UnCrouch();
+	void ToggleCrouch();
 
 	void Run(); 
 
