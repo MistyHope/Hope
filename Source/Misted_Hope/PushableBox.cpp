@@ -2,6 +2,7 @@
 
 #include "PushableBox.h"
 #include "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Misted_HopeCharacter.h"
 
 // Sets default values
@@ -13,9 +14,13 @@ APushableBox::APushableBox()
 
 	m_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh")); 
 	m_Mesh->SetupAttachment(RootComponent); 
+	m_Mesh->BodyInstance.bLockXRotation = true; 
+	m_Mesh->BodyInstance.bLockYRotation = true; 
+	m_Mesh->BodyInstance.bLockZRotation = true; 
 
 	m_TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerComponent")); 
 	m_TriggerBox->SetupAttachment(RootComponent); 
+ 
 }
 
 // Called when the game starts or when spawned

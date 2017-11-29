@@ -27,6 +27,11 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_bIsPushing(false)
 	, m_RingOrigin(0, 0, 0)
 	, m_bLookRight(false)
+	,m_CharacterHeight(60)
+	,m_CharacterWidth(30)
+	,m_iForceValue(11000)
+	,m_LastGroundedPos(0,0,0)
+	, m_bGrounded(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -34,8 +39,8 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	bUseControllerRotationRoll = false;
 
 	// Set the size of our collision capsule.
-	GetCapsuleComponent()->SetCapsuleHalfHeight(96.0f);
-	GetCapsuleComponent()->SetCapsuleRadius(40.0f);
+	GetCapsuleComponent()->SetCapsuleHalfHeight(m_CharacterHeight);
+	GetCapsuleComponent()->SetCapsuleRadius(m_CharacterWidth);
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AMisted_HopeCharacter::OnOverlapBegin);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AMisted_HopeCharacter::OnOverlapEnd);
 
@@ -56,22 +61,15 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 
 	// Prevent all automatic rotation behavior on the camera, character, and camera component
 	CameraBoom->bAbsoluteRotation = true;
-	//SideViewCameraComponent->bUsePawnControlRotation = false;
+	SideViewCameraComponent->bUsePawnControlRotation = false;
 	SideViewCameraComponent->bAutoActivate = true;
-	//GetCharacterMovement()->bOrientRotationToMovement = false;
-
-	// Configure character movement
-	GetCharacterMovement()->GravityScale = 2.0f;
-	GetCharacterMovement()->AirControl = 0.80f;
-	GetCharacterMovement()->JumpZVelocity = 800;
-	GetCharacterMovement()->GroundFriction = 3.0f;
-	m_fMaxSpeed = GetCharacterMovement()->MaxWalkSpeed = 600.0f;
-	GetCharacterMovement()->MaxFlySpeed = 600.0f;
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+	GetCharacterMovement()->GetNavAgentProperties()->bCanCrouch = true; 
 
 
 	// Lock character motion onto the XZ plane, so the character can't move in or out of the screen
-	//GetCharacterMovement()->bConstrainToPlane = true;
-	//GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.0f, -1.0f, 0.0f));
+	GetCharacterMovement()->bConstrainToPlane = true;
+	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.0f, -1.0f, 0.0f));
 
 	// Behave like a traditional 2D platformer character, with a flat bottom instead of a curved capsule bottom
 	// Note: This can cause a little floating when going up inclines; you can choose the tradeoff between better
@@ -81,6 +79,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -97,17 +96,11 @@ void AMisted_HopeCharacter::UpdateAnimation()
 	{
 		GetSprite()->SetFlipbook(DesiredAnimation);
 	}
-	if (!m_bLookRight)
-		GetSprite()->SetRelativeRotation(FRotator(0, 180, 0));
-	else
-		GetSprite()->SetRelativeRotation(FRotator(0, 0, 0));
-
 }
 
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	UpdateCharacter();
 }
 
@@ -120,78 +113,68 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMisted_HopeCharacter::Crouch);
-	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMisted_HopeCharacter::UnCrouch);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMisted_HopeCharacter::MoveRight);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMisted_HopeCharacter::Run);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMisted_HopeCharacter::UnRun);
 	PlayerInputComponent->BindAction("PushObjects", IE_Pressed, this, &AMisted_HopeCharacter::PushObjects);
 	PlayerInputComponent->BindAction("PushObjects", IE_Released, this, &AMisted_HopeCharacter::UnPushObjects);
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AMisted_HopeCharacter::Interaction);
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMisted_HopeCharacter::ToggleCrouch); 
+	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMisted_HopeCharacter::ToggleCrouch);
+
 }
 
 void AMisted_HopeCharacter::MoveRight(float Value)
 {
-	/*UpdateChar();*/
-	// Apply the input to the character motion
-
-
-	float dist = (m_RingOrigin - GetActorLocation()).Size(); 
 
 	if (Value > 0)
-	{
-		if (dist < m_RingOrigin.Y)
-		{
-			AddActorWorldRotation(FRotator(0, -3.0f, 0));
-
-		}
-		else if (dist > m_RingOrigin.Y)
-		{
-			AddActorWorldRotation(FRotator(0, 3.0f, 0));
-		}
-	}
-	else if (Value < 0)
-	{
-		if (dist < m_RingOrigin.Y)
-		{
-			AddActorWorldRotation(FRotator(0, 3.0f, 0));
-		}
-		else if (dist > m_RingOrigin.Y)
-		{
-			AddActorWorldRotation(FRotator(0, -3.0f, 0)); 
-		}
-	}
-
-	if (Value < 0)
-		m_bLookRight = false;
-	else if (Value > 0)
-		m_bLookRight = true; 
+		m_bLookRight = true;
+	else
+		m_bLookRight = false; 
+	
 	FHitResult RV_Hit(ForceInit);
 	bool hitResult;
 	if (m_bLookRight)
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + (GetActorForwardVector() * 70), ECC_WorldStatic);
+		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(30,0,0), ECC_WorldStatic);
 	else
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - (GetActorForwardVector() * 70), ECC_WorldStatic);
+		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
+
+
 
 	if (!hitResult && !m_bIsPushing)
 	{
-		AddMovementInput(GetActorForwardVector(), Value);
+		AddMovementInput(FVector(1,0,0), Value);
 	}
-		
+	else if (m_bIsPushing)
+	{
+		AddMovementInput(FVector(.2,0,0), Value);
+
+		m_NearActor->GetRootPrimitiveComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(true);
+		m_NearActor->GetRootPrimitiveComponent()->AddForce(FVector(50,0,0) *m_iForceValue*Value);
+	}		
+
 }
 
-void AMisted_HopeCharacter::Crouch()
+void AMisted_HopeCharacter::TrampolineJump(float jumpMultiplicator)
 {
-	//TODO: Add animation
-	//GetCapsuleComponent()->SetCapsuleHalfHeight(GetCapsuleComponent()->GetUnscaledCapsuleHalfHeight()/2);
+	Jump();
 }
 
-void AMisted_HopeCharacter::UnCrouch()
+void AMisted_HopeCharacter::ToggleCrouch()
 {
-	//TODO: Add Animation
-	//GetCapsuleComponent()->SetCapsuleHalfHeight(96.0f);
-
+	if (CanCrouch())
+	{
+		Crouch();
+		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchedEyeHeight);
+	}
+	else
+	{
+		UnCrouch();
+		GetCapsuleComponent()->SetCapsuleHalfHeight(m_CharacterHeight);
+	}
 }
+
 
 void AMisted_HopeCharacter::Run()
 {
@@ -215,8 +198,6 @@ void AMisted_HopeCharacter::PushObjects()
 	if (!m_bIsPushing && m_bNearBox)
 	{
 		m_bIsPushing = true;
-		
-
 	}
 }
 
@@ -230,8 +211,6 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 {
 	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
 	{
-		USceneComponent* Root = OtherActor->GetRootComponent(); 
-		UE_LOG(LogTemp, Warning, TEXT("Root: %s"), *Root->GetFName().ToString()); 
 		m_bNearBox = true; 
 		m_NearActor = OtherActor; 
 	}
@@ -248,39 +227,32 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 
 void AMisted_HopeCharacter::UpdateCharacter()
 {
+	
+
+	// Set the rotation so that the character faces his direction of travel.
 	// Update animation to match the motion
 	UpdateAnimation();
 
-	FHitResult RV_Hit(ForceInit);
-
-	bool hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(0, 0, 500), ECC_WorldStatic);
-	if (hitResult && m_RingOrigin.IsZero())
+	if (!m_bIsPushing && m_NearActor != nullptr)
 	{
-		FVector actorLoc;
-		actorLoc = RV_Hit.GetActor()->GetActorLocation();
-		bool originResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, actorLoc, actorLoc + FVector(0, 999999, 0), ECC_WorldStatic);
-		if (originResult)
-		{
-			float dist = RV_Hit.Distance;
-			m_RingOrigin = FVector(actorLoc.X, actorLoc.Y + dist / 2, actorLoc.Z);
-			m_RingOrigin = FVector(m_RingOrigin.X, m_RingOrigin.Y + 40, m_RingOrigin.Z);
-		}
+		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
 	}
-	
-
-	FRotator actorRot = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), m_RingOrigin);
-
-	FVector cameraLookAtLeft = GetActorLocation() - (-GetActorRightVector());
-
-	FRotator cameraRotLeft = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), cameraLookAtLeft);
-
-	CameraBoom->SetWorldRotation(cameraRotLeft); 
 
 
+
+	// Now setup the rotation of the controller based on the direction we are travelling
+	const FVector PlayerVelocity = GetVelocity();
+	float TravelDirection = PlayerVelocity.X;
 	// Set the rotation so that the character faces his direction of travel.
 	if (Controller != nullptr)
 	{
-		Controller->SetControlRotation(actorRot - FRotator(0, 90, 0)); 
-		
+		if (TravelDirection < 0.0f)
+		{
+			Controller->SetControlRotation(FRotator(0.0, 180.0f, 0.0f));
+		}
+		else if (TravelDirection > 0.0f)
+		{
+			Controller->SetControlRotation(FRotator(0.0f, 0.0f, 0.0f));
+		}
 	}
 }

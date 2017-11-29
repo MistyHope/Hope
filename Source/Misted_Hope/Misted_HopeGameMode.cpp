@@ -6,5 +6,9 @@
 AMisted_HopeGameMode::AMisted_HopeGameMode()
 {
 	// Set default pawn class to our character
-	DefaultPawnClass = AMisted_HopeCharacter::StaticClass();	
+	DefaultPawnClass = AMisted_HopeCharacter::StaticClass();
+
+
+
 }
+

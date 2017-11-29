@@ -18,4 +18,5 @@ class AMisted_HopeGameMode : public AGameModeBase
 	GENERATED_BODY()
 public:
 	AMisted_HopeGameMode();
+
 };
