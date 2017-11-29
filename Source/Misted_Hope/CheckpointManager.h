@@ -4,19 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "InteractableObjects.h"
-#include "PushableBox.generated.h"
+#include "CheckpointManager.generated.h"
 
-class UBoxComponent;
-
-UCLASS(config=Game)
-class  APushableBox : public AInteractableObjects
+UCLASS()
+class MISTED_HOPE_API ACheckpointManager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	APushableBox();
+	ACheckpointManager();
 
 protected:
 	// Called when the game starts or when spawned
@@ -26,8 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = Object)
-		class UStaticMeshComponent* m_Mesh;
-	UPROPERTY(EditAnywhere, Category = Object)
-		class UShapeComponent* m_TriggerBox; 
+	FVector m_currentCheckpointPos; 
+	
+	UFUNCTION()
+		void SetCheckpoint(const FVector& vec); 
+	
 };
