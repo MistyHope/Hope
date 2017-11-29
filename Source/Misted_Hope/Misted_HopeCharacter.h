@@ -73,6 +73,10 @@ public:
 	class AActor* m_NearActor; 
 
 	bool m_bNearBox; 
+	
+	bool m_bGrounded; 
+
+	FVector m_LastGroundedPos; 
 
 public: 
 	/** Called to choose the correct animation to play based on the character's movement state */
@@ -94,6 +98,9 @@ public:
 	void UnPushObjects();
 
 	void UpdateCharacter();
+
+	UFUNCTION()
+		void TrampolineJump(float jumpMultiplicator); 
 
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

@@ -30,6 +30,8 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	,m_CharacterHeight(60)
 	,m_CharacterWidth(30)
 	,m_iForceValue(11000)
+	,m_LastGroundedPos(0,0,0)
+	, m_bGrounded(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -77,6 +79,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	// Enable replication on the Sprite component so animations show up when networked
 	GetSprite()->SetIsReplicated(true);
 	bReplicates = true;
+
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,7 +101,6 @@ void AMisted_HopeCharacter::UpdateAnimation()
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-
 	UpdateCharacter();
 }
 
@@ -138,6 +140,7 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
 
 
+
 	if (!hitResult && !m_bIsPushing)
 	{
 		AddMovementInput(FVector(1,0,0), Value);
@@ -148,9 +151,14 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 
 		m_NearActor->GetRootPrimitiveComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(true);
-		m_NearActor->GetRootPrimitiveComponent()->AddForce((GetActorLocation() + FVector(50,0,0)) *m_iForceValue*Value);
-
+		m_NearActor->GetRootPrimitiveComponent()->AddForce(FVector(50,0,0) *m_iForceValue*Value);
 	}		
+
+}
+
+void AMisted_HopeCharacter::TrampolineJump(float jumpMultiplicator)
+{
+	Jump();
 }
 
 void AMisted_HopeCharacter::ToggleCrouch()
@@ -166,6 +174,7 @@ void AMisted_HopeCharacter::ToggleCrouch()
 		GetCapsuleComponent()->SetCapsuleHalfHeight(m_CharacterHeight);
 	}
 }
+
 
 void AMisted_HopeCharacter::Run()
 {
@@ -228,7 +237,8 @@ void AMisted_HopeCharacter::UpdateCharacter()
 	{
 		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
 	}
-	DrawDebugLine(GetWorld(), GetActorLocation(), GetActorLocation()+GetActorForwardVector() * 50, FColor::Black); 
+
+
 
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();
