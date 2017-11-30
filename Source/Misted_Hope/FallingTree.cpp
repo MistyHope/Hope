@@ -13,9 +13,6 @@ AFallingTree::AFallingTree()
 	m_RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root")); 
 	RootComponent = m_RootComponent; 
 
-	m_TreeFallPosition = CreateDefaultSubobject<UBoxComponent>(TEXT("TreeFallPosition")); 
-	m_TreeFallPosition->SetupAttachment(RootComponent);
-
 	m_TreeCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("TreeRoot"));
 	m_TreeCollider->SetupAttachment(RootComponent);
 
@@ -42,9 +39,12 @@ void AFallingTree::BeginPlay()
 void AFallingTree::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	m_TreeCollider->MoveComponent(m_TreeFallPosition->GetSocketLocation(m_TreeFallPosition->GetFName()), GetActorRotation(), false); 
+	if (m_isFell)
+	{
+		m_TreeCollider->SetEnableGravity(true);
+		m_TreeCollider->SetSimulatePhysics(true);
+	}
 }
-
 
 void AFallingTree::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
