@@ -76,6 +76,8 @@ public:
 	
 	bool m_bGrounded; 
 
+	float m_distToBox; 
+
 	FVector m_LastGroundedPos; 
 
 public: 

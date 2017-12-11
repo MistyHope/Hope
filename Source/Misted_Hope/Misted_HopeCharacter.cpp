@@ -151,7 +151,7 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 
 		m_NearActor->GetRootPrimitiveComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(true);
-		m_NearActor->GetRootPrimitiveComponent()->AddForce(FVector(50,0,0) *m_iForceValue*Value);
+		m_NearActor->SetActorLocation(FVector(GetActorLocation().X + m_distToBox, m_NearActor->GetActorLocation().Y, m_NearActor->GetActorLocation().Z));
 	}		
 
 }
@@ -197,6 +197,7 @@ void AMisted_HopeCharacter::PushObjects()
 {
 	if (!m_bIsPushing && m_bNearBox)
 	{
+		m_distToBox = m_NearActor->GetActorLocation().X - GetActorLocation().X;
 		m_bIsPushing = true;
 	}
 }
