@@ -15,6 +15,7 @@
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 #include "PushableBox.h"
+#include "Collectables.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
@@ -214,6 +215,11 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	{
 		m_bNearBox = true; 
 		m_NearActor = OtherActor; 
+	}
+	else if (OtherActor->GetClass()->GetFName() == TEXT("Collectables"))
+	{
+		ACollectables* collectable = (ACollectables*)OtherActor->GetClass();
+		collectable->Collect();
 	}
 	
 }
