@@ -209,17 +209,18 @@ void AMisted_HopeCharacter::UnPushObjects()
 		m_bIsPushing = false;
 }
 
+void AMisted_HopeCharacter::Collect(ECollectables collectable)
+{
+
+}
+
+
 void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
 	{
 		m_bNearBox = true; 
 		m_NearActor = OtherActor; 
-	}
-	else if (OtherActor->GetClass()->GetFName() == TEXT("Collectables"))
-	{
-		ACollectables* collectable = (ACollectables*)OtherActor->GetClass();
-		collectable->Collect();
 	}
 	
 }

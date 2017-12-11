@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "EnumAndStructHolder.h"
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "Misted_HopeCharacter.generated.h"
@@ -16,12 +17,6 @@ class UTextRenderComponent;
  * The CharacterMovementComponent (inherited from ACharacter) handles movement of the collision capsule
  * The Sprite component (inherited from APaperCharacter) handles the visuals
  */
-UENUM(BlueprintType)
-enum class EInteractions : uint8
-{
-	Hide
-	,Push
-};
 
 
 
@@ -50,6 +45,7 @@ protected:
 	class UPaperFlipbook* IdleAnimation;
 
 public: 
+
 	UPROPERTY()
 		bool m_bIsRunning;	
 	UPROPERTY(Category="Character Movement(Edited Settings)", EditAnywhere)
@@ -103,6 +99,8 @@ public:
 
 	UFUNCTION()
 		void TrampolineJump(float jumpMultiplicator); 
+	UFUNCTION()
+		void Collect(ECollectables collectable); 
 
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
