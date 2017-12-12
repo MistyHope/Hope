@@ -18,6 +18,8 @@ ACollectables::ACollectables()
 
 	m_Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	m_Trigger->SetupAttachment(RootComponent); 
+	m_Trigger->OnComponentBeginOverlap.AddDynamic(this, &ACollectables::OnOverlapBegin);
+	m_Trigger->OnComponentEndOverlap.AddDynamic(this, &ACollectables::OnOverlapEnd);
 
 
 }
@@ -42,8 +44,8 @@ void ACollectables::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 {
 	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetPawn()->GetClass())
 	{
-		AMisted_HopeCharacter* character = (AMisted_HopeCharacter*) OtherActor->GetClass();
-		character->Collect(ECollectables::NormalHerb);
+		AMisted_HopeCharacter* character = Cast<AMisted_HopeCharacter>(OtherActor);
+		character->Collect(m_CurrentCollectable);
 	}
 }
 void ACollectables::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
