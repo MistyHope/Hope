@@ -79,9 +79,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	// behavior on the edge of a ledge versus inclines by setting this to true or false
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
 
-	// Enable replication on the Sprite component so animations show up when networked
-	GetSprite()->SetIsReplicated(true);
-	bReplicates = true;
+
 
 }
 
@@ -93,12 +91,7 @@ void AMisted_HopeCharacter::UpdateAnimation()
 	const FVector PlayerVelocity = GetVelocity();
 	const float PlayerSpeedSqr = PlayerVelocity.SizeSquared();
 
-	// Are we moving or standing still?
-	UPaperFlipbook* DesiredAnimation = (PlayerSpeedSqr > 0.0f) ? RunningAnimation : IdleAnimation;
-	if (GetSprite()->GetFlipbook() != DesiredAnimation)
-	{
-		GetSprite()->SetFlipbook(DesiredAnimation);
-	}
+
 }
 
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
