@@ -39,8 +39,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = Trigger)
 		class UBoxComponent* m_TriggerBox; 
 	UPROPERTY(EditAnywhere, Category = Tree)
-		class UBoxComponent* m_TreeFallPosition;
-	UPROPERTY(EditAnywhere, Category = Tree)
 		class UBoxComponent* m_TreeCollider;
 
 	
