@@ -26,13 +26,15 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 AMisted_HopeCharacter::AMisted_HopeCharacter()
 	: m_bIsRunning(false)
 	, m_bIsPushing(false)
-	, m_RingOrigin(0, 0, 0)
 	, m_bLookRight(false)
 	,m_CharacterHeight(60)
 	,m_CharacterWidth(30)
-	,m_iForceValue(11000)
 	,m_LastGroundedPos(0,0,0)
 	, m_bGrounded(false)
+	, m_InAirMovementpower(30)
+	,m_PlayerHope(100)
+	,m_NormalHerbValue(5)
+	,m_SpecialHerbValue(5)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -140,7 +142,8 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 	else
 		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
 
-
+	if (GetCharacterMovement()->IsFalling())
+		LaunchCharacter(FVector(m_InAirMovementpower*Value, 0, 0), false, false); 
 
 	if (!hitResult && !m_bIsPushing)
 	{
@@ -159,7 +162,7 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 
 void AMisted_HopeCharacter::TrampolineJump(float jumpMultiplicator)
 {
-	Jump();
+	LaunchCharacter(FVector(0, 0, jumpMultiplicator), false, true);
 }
 
 void AMisted_HopeCharacter::ToggleCrouch()
@@ -209,17 +212,34 @@ void AMisted_HopeCharacter::UnPushObjects()
 		m_bIsPushing = false;
 }
 
+void AMisted_HopeCharacter::Collect(ECollectables collectable)
+{
+	switch (collectable)
+	{
+	case NormalHerb:
+		m_PlayerHope += m_NormalHerbValue; 
+		break;
+	case SpecialHerb:
+		m_PlayerHope += m_SpecialHerbValue; 
+		break;
+	}
+	UE_LOG(LogTemp, Warning, TEXT("%f"), m_PlayerHope);
+
+}
+
+void AMisted_HopeCharacter::Hurt(float Value)
+{
+	m_PlayerHope -= Value; 
+	UE_LOG(LogTemp, Warning, TEXT("%f"), m_PlayerHope);
+}
+
+
 void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
 	{
 		m_bNearBox = true; 
 		m_NearActor = OtherActor; 
-	}
-	else if (OtherActor->GetClass()->GetFName() == TEXT("Collectables"))
-	{
-		ACollectables* collectable = (ACollectables*)OtherActor->GetClass();
-		collectable->Collect();
 	}
 	
 }
@@ -234,18 +254,11 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 
 void AMisted_HopeCharacter::UpdateCharacter()
 {
-	
+
 
 	// Set the rotation so that the character faces his direction of travel.
 	// Update animation to match the motion
 	UpdateAnimation();
-
-	if (!m_bIsPushing && m_NearActor != nullptr)
-	{
-		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
-	}
-
-
 
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();

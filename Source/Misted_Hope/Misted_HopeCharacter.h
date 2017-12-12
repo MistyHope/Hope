@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "EnumAndStructHolder.h"
 #include "CoreMinimal.h"
 #include "PaperCharacter.h"
 #include "Misted_HopeCharacter.generated.h"
@@ -16,12 +17,6 @@ class UTextRenderComponent;
  * The CharacterMovementComponent (inherited from ACharacter) handles movement of the collision capsule
  * The Sprite component (inherited from APaperCharacter) handles the visuals
  */
-UENUM(BlueprintType)
-enum class EInteractions : uint8
-{
-	Hide
-	,Push
-};
 
 
 
@@ -50,22 +45,23 @@ protected:
 	class UPaperFlipbook* IdleAnimation;
 
 public: 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category = Movement)
+		float m_InAirMovementpower; 
+	UPROPERTY(EditAnywhere, Category = Character)
+		float m_PlayerHope;
+	UPROPERTY(EditAnywhere, Category = Movement)
 		bool m_bIsRunning;	
-	UPROPERTY(Category="Character Movement(Edited Settings)", EditAnywhere)
+	UPROPERTY(Category=Movement, EditAnywhere)
 		float m_fRunMultiplier;
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category = Movement)
 		float m_fMaxSpeed; 
-	UPROPERTY()
-		bool m_bIsPushing; 
-	UPROPERTY()
-		bool m_bInteract;
-	UPROPERTY()
-		FVector m_RingOrigin; 
-	UPROPERTY()
-		bool m_bLookRight; 
-	UPROPERTY(EditAnywhere, Category = AddForce)
-		int32 m_iForceValue;
+	UPROPERTY(EditAnywhere, Category = Character)
+		float m_NormalHerbValue; 
+	UPROPERTY(EditAnywhere, Category = Character)
+		float m_SpecialHerbValue; 
+	bool m_bIsPushing; 
+	bool m_bInteract; 
+	bool m_bLookRight; 
 	UPROPERTY(EditAnywhere, Category = CharacterBasics)
 		float m_CharacterHeight;
 	UPROPERTY(EditAnywhere, Category = CharacterBasics)
@@ -103,7 +99,10 @@ public:
 
 	UFUNCTION()
 		void TrampolineJump(float jumpMultiplicator); 
-
+	UFUNCTION()
+		void Collect(ECollectables collectable); 
+	UFUNCTION()
+		void Hurt(float value);
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()

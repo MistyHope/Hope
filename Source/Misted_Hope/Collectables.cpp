@@ -2,6 +2,7 @@
 
 #include "Collectables.h"
 #include "Components/BoxComponent.h"
+#include "Misted_HopeCharacter.h"
 
 // Sets default values
 ACollectables::ACollectables()
@@ -17,6 +18,8 @@ ACollectables::ACollectables()
 
 	m_Trigger = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger"));
 	m_Trigger->SetupAttachment(RootComponent); 
+	m_Trigger->OnComponentBeginOverlap.AddDynamic(this, &ACollectables::OnOverlapBegin);
+	m_Trigger->OnComponentEndOverlap.AddDynamic(this, &ACollectables::OnOverlapEnd);
 
 
 }
@@ -37,8 +40,15 @@ void ACollectables::Tick(float DeltaTime)
 
 }
 
-
-void ACollectables::Collect()
+void ACollectables::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
+	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetPawn()->GetClass())
+	{
+		AMisted_HopeCharacter* character = Cast<AMisted_HopeCharacter>(OtherActor);
+		character->Collect(m_CurrentCollectable);
+	}
+}
+void ACollectables::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	this->Destroy();
 }

@@ -2,19 +2,18 @@
 
 #pragma once
 
-#include "EnumAndStructHolder.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Collectables.generated.h"
+#include "DamagingGround.generated.h"
 
 UCLASS()
-class MISTED_HOPE_API ACollectables : public AActor
+class MISTED_HOPE_API ADamagingGround : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ACollectables();
+	ADamagingGround();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,14 +23,27 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = Collectable)
-		class USceneComponent* m_Root; 
-	UPROPERTY(EditAnywhere, Category = Collectable)
+	UPROPERTY(EditAnywhere, Category = Ground)
 		class UStaticMeshComponent* m_Mesh; 
-	UPROPERTY(EditAnywhere, Category = Collectable)
+	UPROPERTY(EditAnywhere, Category = Ground)
+		class USceneComponent* m_RootComponent; 
+	UPROPERTY(EditAnywhere, Category = Ground)
 		class UShapeComponent* m_Trigger; 
-	UPROPERTY(EditAnywhere, Category = Collectable)
-		TEnumAsByte<ECollectables> m_CurrentCollectable;
+	
+	FTimerHandle m_TimerHandle; 
+	UPROPERTY(EditAnywhere, Category = Damage)
+		float m_DamageDelay; 
+
+	class AMisted_HopeCharacter* m_Character; 
+
+	bool m_DamagePlayer; 
+
+	UPROPERTY(EditAnywhere, Category = Damage)
+		float m_DamageValue; 
+
+	UFUNCTION()
+		void HurtCharacter();
+
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
