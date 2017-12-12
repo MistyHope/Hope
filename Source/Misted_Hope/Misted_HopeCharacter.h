@@ -21,7 +21,7 @@ class UTextRenderComponent;
 
 
 UCLASS(config=Game)
-class AMisted_HopeCharacter : public APaperCharacter
+class AMisted_HopeCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
@@ -36,13 +36,7 @@ class AMisted_HopeCharacter : public APaperCharacter
 	UTextRenderComponent* TextComponent;
 	virtual void Tick(float DeltaSeconds) override;
 protected:
-	// The animation to play while running around
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Animations)
-	class UPaperFlipbook* RunningAnimation;
 
-	// The animation to play while idle (standing still)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Animations)
-	class UPaperFlipbook* IdleAnimation;
 
 public: 
 	UPROPERTY(EditAnywhere, Category = Movement)
