@@ -28,6 +28,13 @@ public:
 
 	UFUNCTION()
 		bool TargetIsInFOV(AActor* otherActor); 
+	UFUNCTION()
+		float GetCapsuleRadius(); 
+	UFUNCTION()
+		float GetCapsuleHalfHeight();
+	UFUNCTION()
+		bool MovePawn(FVector vec1, FVector vec2); 
+
 
 	UPROPERTY(EditAnywhere, Category = Pawn)
 		class UCapsuleComponent* m_RootCapsule; 
@@ -42,5 +49,17 @@ public:
 		float m_visionAngle; 
 	UPROPERTY(EditAnywhere, Category = Vision)
 		float m_maxVisionRange; 
+
+	UPROPERTY(EditAnywhere, Category = Movement)
+		FVector m_firstLocationOffset; 
+	UPROPERTY(EditAnywhere, Category = Movement)
+		FVector m_secondLocationOffset; 
+	UPROPERTY(EditAnywhere, Category = Movement)
+		float m_groundOffset; 
+	UPROPERTY(EditAnywhere, Category = Movement)
+		float m_frontGroundOffset; 
+
+	UPROPERTY()
+		class ABaseAIController* m_controller; 
 
 };

@@ -3,9 +3,12 @@
 #include "BaseAIPawn.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/BoxComponent.h"
+#include "SmallEnemyController.h"
 
 // Sets default values
 ABaseAIPawn::ABaseAIPawn()
+	:m_groundOffset(30)
+	, m_frontGroundOffset(30)
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -29,7 +32,9 @@ ABaseAIPawn::ABaseAIPawn()
 void ABaseAIPawn::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	m_controller = Cast<ASmallEnemyController>(GetController());
+	m_controller->SetForwardOffset(m_frontGroundOffset); 
+	m_controller->SetGroundOffset(m_groundOffset);
 }
 
 // Called every frame
@@ -37,6 +42,8 @@ void ABaseAIPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (m_controller)
+		MovePawn(GetActorLocation() + m_firstLocationOffset, GetActorLocation() + m_secondLocationOffset);
 }
 
 // Called to bind functionality to input
@@ -50,4 +57,26 @@ void ABaseAIPawn::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 bool ABaseAIPawn::TargetIsInFOV(AActor* otherActor)
 {
 	return false; 
+}
+
+bool ABaseAIPawn::MovePawn(FVector vec1, FVector vec2)
+{
+	if (m_controller->Move(GetActorLocation() + m_firstLocationOffset))
+		m_controller->Move(GetActorLocation() + m_secondLocationOffset);
+
+
+	return false; 
+
+}
+
+
+
+float ABaseAIPawn::GetCapsuleRadius()
+{
+	return m_RootCapsule->GetScaledCapsuleRadius(); 
+}
+
+float ABaseAIPawn::GetCapsuleHalfHeight()
+{
+	return m_RootCapsule->GetScaledCapsuleHalfHeight();
 }
