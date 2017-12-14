@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include "EnumAndStructHolder.h"
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "Collectables.generated.h"
@@ -29,7 +30,10 @@ public:
 		class UStaticMeshComponent* m_Mesh; 
 	UPROPERTY(EditAnywhere, Category = Collectable)
 		class UShapeComponent* m_Trigger; 
-
+	UPROPERTY(EditAnywhere, Category = Collectable)
+		TEnumAsByte<ECollectables> m_CurrentCollectable;
 	UFUNCTION()
-		void Collect();
+		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };
