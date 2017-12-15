@@ -19,9 +19,7 @@ public:
 	ABaseAIController();
 
 	virtual void Possess(class APawn* InPawn) override; 
-	virtual bool Move(FVector location); 
 	virtual void Attack(); 
-	void Tick(float DeltaTime) override; 
 
 	UFUNCTION()
 		void SetForwardOffset(float value); 
@@ -35,13 +33,29 @@ public:
 	UPROPERTY(EditAnywhere, Category = Attacking)
 		float m_attackCD; 
 	UPROPERTY()
-		class ABaseAIPawn* baseAIPawn; 
+		class ABaseAICharacter* m_baseAIChar; 
 	UPROPERTY()
 		float m_forwardGroundOffset; 
 	UPROPERTY()
 		float m_groundOffset; 
+	UPROPERTY()
+		class UBehaviorTreeComponent*  m_behaviorTree; 
+	UPROPERTY()
+		class UBlackboardComponent* m_blackBoardComp; 
+	UPROPERTY()
+		TArray<AActor*> m_AITargetPoints; 
+	UPROPERTY(EditDefaultsOnly, Category = AI)
+		FName m_LocationToGoKey;
+	UPROPERTY(EditDefaultsOnly, Category = AI)
+		FName m_TargetKey; 
+
+	UFUNCTION()
+		void SetVisibleTarget(APawn* InPawn); 
+	UFUNCTION()
+		UBlackboardComponent* GetBlackBoardComp() const { return m_blackBoardComp; }
+	UFUNCTION()
+		TArray<AActor*> GetAvailableTargetPoints() { return m_AITargetPoints; }
 
 
 protected: 
-	void BeginPlay() override; 
 };

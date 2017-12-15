@@ -3,13 +3,23 @@
 #include "BaseAIController.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
-#include "BaseAIPawn.h"
-
+#include "BaseAICharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "AITargetPoint.h"
+#include "Kismet/GameplayStatics.h"
 
 ABaseAIController::ABaseAIController()
 	:m_forwardGroundOffset(0)
 	, m_groundOffset(0)
+	, m_TargetKey("Target")
+	, m_LocationToGoKey("LocationToGo")
 {
+	m_behaviorTree = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorComp"));
+
+	m_blackBoardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackBoardComp")); 
+
 
 }
 
@@ -18,50 +28,33 @@ void ABaseAIController::Possess(class APawn* InPawn)
 {
 	Super::Possess(InPawn);
 	SetPawn(InPawn);
-	if (InPawn->GetClass()->GetFName() == TEXT("SmallAIPawn"))
-		baseAIPawn = Cast<ABaseAIPawn>(InPawn);
-}
-
-bool ABaseAIController::Move(const FVector location)
-{
+	m_baseAIChar = Cast<ABaseAICharacter>(InPawn);
 
 
-	FHitResult RV_HIT(ForceInit);
-	FCollisionQueryParams RV_Query = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	FVector LineTraceDir;
-	if (baseAIPawn)
-		LineTraceDir = (GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * (FVector(m_forwardGroundOffset, 0, 0) + baseAIPawn->GetCapsuleRadius()));
-	else
-		LineTraceDir = (GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * 50);
 
-	bool hitResult;
-	if (baseAIPawn)
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_HIT, GetPawn()->GetActorLocation(), LineTraceDir - GetPawn()->GetActorUpVector() * baseAIPawn->GetCapsuleHalfHeight() + FVector(0, 0, m_groundOffset), ECC_WorldStatic);
-	else
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_HIT, GetPawn()->GetActorLocation(), LineTraceDir - GetPawn()->GetActorUpVector() * 50, ECC_WorldStatic);
-
-	DrawDebugLine(GetWorld(), GetPawn()->GetActorLocation(), LineTraceDir - GetPawn()->GetActorUpVector() * (FVector(0, 0, m_groundOffset) + baseAIPawn->GetCapsuleHalfHeight()), FColor::Black);
-	if (hitResult)
+	if (m_baseAIChar)
 	{
-		MoveToLocation(location);
+		if (m_baseAIChar->m_behaviorTree->BlackboardAsset)
+		{
+			m_blackBoardComp->InitializeBlackboard(*(m_baseAIChar->m_behaviorTree->BlackboardAsset));
+		}
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAITargetPoint::StaticClass(), m_AITargetPoints); 
+
+		m_behaviorTree->StartTree(*m_baseAIChar->m_behaviorTree);
 	}
-	else
+
+
+
+}
+
+void ABaseAIController::SetVisibleTarget(APawn* InPawn)
+{
+	if (m_blackBoardComp)
 	{
-		return false;
+		m_blackBoardComp->SetValueAsObject(m_TargetKey, InPawn);
 	}
-	return false;
 }
 
-void ABaseAIController::BeginPlay()
-{
-	Super::BeginPlay();
-}
-
-
-void ABaseAIController::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-}
 
 void ABaseAIController::Attack()
 {
