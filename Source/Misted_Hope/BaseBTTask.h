@@ -29,7 +29,6 @@ public:
 
 	void SetMovingKey(class UBlackboardComponent* blackBoardComp, class ABaseAIController* baseAiController);
 
-	void SetAttackingKey(class UBlackboardComponent* blackBoardComp, class ABaseAIController* baseAiController);
 
 
 

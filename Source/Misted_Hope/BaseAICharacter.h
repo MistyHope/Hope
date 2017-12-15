@@ -40,15 +40,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = Pawn)
 		class UShapeComponent* m_LegCollider;
 
-	UPROPERTY(EditAnywhere, Category = Vision)
-		float m_visionAngle;
-	UPROPERTY(EditAnywhere, Category = Vision)
-		float m_maxVisionRange;
+	UPROPERTY(EditAnywhere, Category = Attack)
+		float m_Damage; 
+	UPROPERTY(EditAnywhere, Category = Attack)
+		float m_PushBackForce;
 
-	UPROPERTY(EditAnywhere, Category = Movement)
-		FVector m_firstLocationOffset;
-	UPROPERTY(EditAnywhere, Category = Movement)
-		FVector m_secondLocationOffset;
+
 	UPROPERTY(EditAnywhere, Category = Movement)
 		float m_groundOffset;
 	UPROPERTY(EditAnywhere, Category = Movement)
@@ -62,7 +59,8 @@ public:
 		class UPawnSensingComponent* m_PawnSensing; 
 	UPROPERTY(EditAnywhere, Category = AI)
 		class UBehaviorTree* m_behaviorTree; 
-
+	UPROPERTY()
+		bool m_SeePawn; 
 
 
 	

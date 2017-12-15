@@ -32,6 +32,10 @@ public:
 		float m_maxAttackRange; 
 	UPROPERTY(EditAnywhere, Category = Attacking)
 		float m_attackCD; 
+	UPROPERTY(EditAnywhere, Category = Attacking)
+		float m_Damage;
+
+
 	UPROPERTY()
 		class ABaseAICharacter* m_baseAIChar; 
 	UPROPERTY()
@@ -49,12 +53,15 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = AI)
 		FName m_TargetKey; 
 
+
 	UFUNCTION()
 		void SetVisibleTarget(APawn* InPawn); 
 	UFUNCTION()
 		UBlackboardComponent* GetBlackBoardComp() const { return m_blackBoardComp; }
 	UFUNCTION()
 		TArray<AActor*> GetAvailableTargetPoints() { return m_AITargetPoints; }
+	UFUNCTION()
+		void SetDamage(float value);
 
 
 protected: 

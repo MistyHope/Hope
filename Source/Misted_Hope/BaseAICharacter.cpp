@@ -14,6 +14,8 @@
 ABaseAICharacter::ABaseAICharacter()
 	:m_groundOffset(30)
 	, m_frontGroundOffset(30)
+	,m_Damage(5)
+	,m_PushBackForce(5)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -64,9 +66,18 @@ void ABaseAICharacter::BeginPlay()
 	m_controller = Cast<ASmallEnemyController>(GetController());
 	m_controller->SetForwardOffset(m_frontGroundOffset);
 	m_controller->SetGroundOffset(m_groundOffset);
+	m_controller->SetDamage(m_Damage);
 	if (m_PawnSensing)
 	{
-		m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
+		if (m_PawnSensing->HasLineOfSightTo(GetWorld()->GetFirstPlayerController()->GetCharacter()))
+		{
+			m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
+			m_SeePawn = true; 
+		}
+		else
+		{
+			m_SeePawn = false; 
+		}
 	}
 }
 

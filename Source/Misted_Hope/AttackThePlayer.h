@@ -13,7 +13,9 @@ UCLASS()
 class MISTED_HOPE_API UAttackThePlayer : public UBTTaskNode
 {
 	GENERATED_BODY()
-	
+public:
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+
 	
 	
 	

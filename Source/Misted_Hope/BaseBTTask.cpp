@@ -16,16 +16,17 @@ EBTNodeResult::Type UBaseBTTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 
 		SetMovingKey(blackBoardComp, baseController);
 
-		blackBoardComp->GetValueAsObject("LocationToGo");
 		if (blackBoardComp->GetValueAsObject("Target"))
-			UE_LOG(LogTemp, Warning, TEXT("HI"));
+			return EBTNodeResult::Failed;
 
 
+		blackBoardComp->GetValueAsObject("LocationToGo");
+		return EBTNodeResult::Succeeded;
 		
 
-		return EBTNodeResult::Succeeded;
 	}
-	return EBTNodeResult::Failed; 
+	else
+		return EBTNodeResult::Failed; 
 }
 
 void UBaseBTTask::SetMovingKey(UBlackboardComponent* blackBoardComp, ABaseAIController* baseAiController)
@@ -43,14 +44,11 @@ void UBaseBTTask::SetMovingKey(UBlackboardComponent* blackBoardComp, ABaseAICont
 			Index = 0;
 		nextTargetPoint = Cast<AAITargetPoint>(availableTargetPoints[Index]);
 		Index++;
+		baseAiController->MoveToActor(nextTargetPoint);
 	} while (currentPoint == nextTargetPoint);
 
 
 	blackBoardComp->SetValueAsObject("LocationToGo", nextTargetPoint);
 
-}
-
-void UBaseBTTask::SetAttackingKey(UBlackboardComponent* blackBoardComp, ABaseAIController* baseAiController)
-{
 }
 

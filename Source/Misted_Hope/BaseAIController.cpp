@@ -47,6 +47,12 @@ void ABaseAIController::Possess(class APawn* InPawn)
 
 }
 
+
+void ABaseAIController::SetDamage(float Value)
+{
+	m_Damage = Value; 
+}
+
 void ABaseAIController::SetVisibleTarget(APawn* InPawn)
 {
 	if (m_blackBoardComp)
