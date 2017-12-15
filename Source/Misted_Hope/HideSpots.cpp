@@ -2,6 +2,7 @@
 
 #include "HideSpots.h"
 #include "Components/BoxComponent.h"
+#include "Misted_HopeCharacter.h"
 
 // Sets default values
 AHideSpots::AHideSpots()
@@ -17,6 +18,8 @@ AHideSpots::AHideSpots()
 
 	m_TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("Trigger")); 
 	m_TriggerBox->SetupAttachment(RootComponent);
+	m_TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AHideSpots::OnOverlapBegin); 
+	m_TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AHideSpots::OnOverlapEnd);
 }
 
 // Called when the game starts or when spawned
@@ -33,5 +36,16 @@ void AHideSpots::Tick(float DeltaTime)
 
 }
 
+void AHideSpots::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor); 
+	Character->m_isVisible = false; 
+}
+
+void AHideSpots::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor); 
+	Character->m_isVisible = true; 
+}
 
 

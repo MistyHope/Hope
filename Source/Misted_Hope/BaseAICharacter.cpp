@@ -7,6 +7,7 @@
 #include "SmallEnemyController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
+#include "Misted_HopeCharacter.h"
 
 
 
@@ -67,12 +68,16 @@ void ABaseAICharacter::BeginPlay()
 	m_controller->SetForwardOffset(m_frontGroundOffset);
 	m_controller->SetGroundOffset(m_groundOffset);
 	m_controller->SetDamage(m_Damage);
+	m_char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 	if (m_PawnSensing)
 	{
-		if (m_PawnSensing->HasLineOfSightTo(GetWorld()->GetFirstPlayerController()->GetCharacter()))
+		if (m_PawnSensing->HasLineOfSightTo(GetWorld()->GetFirstPlayerController()->GetPawn()))
 		{
-			m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
-			m_SeePawn = true; 
+			if (!m_char->m_isVisible)
+			{
+				m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
+				m_SeePawn = true;
+			}
 		}
 		else
 		{

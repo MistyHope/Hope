@@ -52,6 +52,9 @@ public:
 		float m_frontGroundOffset;
 	UPROPERTY()
 		class ABaseAIController* m_controller;
+	UPROPERTY()
+		class AMisted_HopeCharacter* m_char; 
+
 
 
 
@@ -61,7 +64,6 @@ public:
 		class UBehaviorTree* m_behaviorTree; 
 	UPROPERTY()
 		bool m_SeePawn; 
-
 
 	
 	

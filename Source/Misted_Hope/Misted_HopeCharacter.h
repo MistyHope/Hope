@@ -66,6 +66,9 @@ public:
 	
 	bool m_bGrounded; 
 
+	UPROPERTY()
+		bool m_isVisible; 
+
 	float m_distToBox; 
 
 	FVector m_LastGroundedPos; 
