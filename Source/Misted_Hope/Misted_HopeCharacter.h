@@ -90,7 +90,8 @@ public:
 	void UnPushObjects();
 
 	void UpdateCharacter();
-
+	UFUNCTION()
+		void PushBack(FVector vec);
 	UFUNCTION()
 		void TrampolineJump(float jumpMultiplicator); 
 	UFUNCTION()

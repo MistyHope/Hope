@@ -3,33 +3,76 @@
 #include "BaseAIController.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "BaseAICharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "AITargetPoint.h"
+#include "Kismet/GameplayStatics.h"
+
+ABaseAIController::ABaseAIController()
+	:m_forwardGroundOffset(0)
+	, m_groundOffset(0)
+	, m_TargetKey("Target")
+	, m_LocationToGoKey("LocationToGo")
+{
+	m_behaviorTree = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorComp"));
+
+	m_blackBoardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackBoardComp")); 
+
+
+}
 
 
 void ABaseAIController::Possess(class APawn* InPawn)
 {
-	SetPawn(InPawn); 
-	this->Possess(InPawn); 
+	Super::Possess(InPawn);
+	SetPawn(InPawn);
+	m_baseAIChar = Cast<ABaseAICharacter>(InPawn);
+
+
+
+	if (m_baseAIChar)
+	{
+		if (m_baseAIChar->m_behaviorTree->BlackboardAsset)
+		{
+			m_blackBoardComp->InitializeBlackboard(*(m_baseAIChar->m_behaviorTree->BlackboardAsset));
+		}
+		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAITargetPoint::StaticClass(), m_AITargetPoints); 
+
+		m_behaviorTree->StartTree(*m_baseAIChar->m_behaviorTree);
+	}
+
+
+
 }
 
-bool ABaseAIController::Move(const FVector location)
+
+void ABaseAIController::SetDamage(float Value)
 {
-	FHitResult RV_HIT(ForceInit);
-	FCollisionQueryParams RV_Query = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	FVector LineTraceDir = (GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * 50);
-	bool hitResult = GetPawn()->ActorLineTraceSingle(RV_HIT, LineTraceDir, LineTraceDir - GetPawn()->GetActorUpVector() * 50, ECC_WorldStatic, RV_Query);
-	if (hitResult)
-	{
-		MoveToLocation(location);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-	return true;
+	m_Damage = Value; 
 }
+
+void ABaseAIController::SetVisibleTarget(APawn* InPawn)
+{
+	if (m_blackBoardComp)
+	{
+		m_blackBoardComp->SetValueAsObject(m_TargetKey, InPawn);
+	}
+}
+
 
 void ABaseAIController::Attack()
 {
 
+}
+
+void ABaseAIController::SetGroundOffset(float value)
+{
+	m_groundOffset = value;
+}
+
+void ABaseAIController::SetForwardOffset(float value)
+{
+	m_forwardGroundOffset = value;
 }
