@@ -38,14 +38,20 @@ void AHideSpots::Tick(float DeltaTime)
 
 void AHideSpots::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor); 
-	Character->m_isVisible = false; 
+	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
+	{
+		AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
+		Character->m_isVisible = false;
+	}
 }
 
 void AHideSpots::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor); 
-	Character->m_isVisible = true; 
+	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
+	{
+		AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
+		Character->m_isVisible = true;
+	}
 }
 
 
