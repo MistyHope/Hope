@@ -19,6 +19,7 @@ ABaseAICharacter::ABaseAICharacter()
 	,m_Damage(5)
 	,m_PushBackForce(5)
 	, m_targetIndex(0)
+	,m_patrolDelay(5)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -61,18 +62,12 @@ uint32 ABaseAICharacter::GetCurrentInstanceNum()
 void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 {
 	ABaseAIController* baseController = Cast<ABaseAIController>(GetController()); 
-	m_SeePawn = true;
-	m_char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 
 	if (baseController)
 	{
 		if (m_PawnSensing->HasLineOfSightTo(m_char) && m_char->m_isVisible)
 		{
 			baseController->SetVisibleTarget(pawn);
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target is in FOV"));
-			}
 		}
 	}
 
@@ -83,6 +78,7 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 void ABaseAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	m_char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 
 	m_controller = Cast<ASmallEnemyController>(GetController());
 	if (m_PawnSensing)
@@ -100,29 +96,36 @@ void ABaseAICharacter::TargetIsNotInFOV()
 	{
 		if (baseController->Patrol(m_targetIndex))
 		{
-			if (m_targetIndex < m_AITargetPoints.Num()-1)
+			if (m_targetIndex < m_AITargetPoints.Num() - 1)
 				m_targetIndex++;
 			else
 				m_targetIndex = 0;
+		
 		}
 	}
+}
+
+void ABaseAICharacter::SetIndex()
+{
+
 }
 
 // Called every frame
 void ABaseAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(!m_SeePawn)
+
+	if(!m_PawnSensing->HasLineOfSightTo(m_char))
 		TargetIsNotInFOV();
 
-	UE_LOG(LogTemp, Warning, TEXT("SeePlayer: %s"), m_SeePawn ? TEXT("true") : TEXT("false"));
+	//UE_LOG(LogTemp, Warning, TEXT("See Player: %s"), m_PawnSensing->HasLineOfSightTo(m_char) ? TEXT("true") : TEXT("false")); 
+	UE_LOG(LogTemp, Warning, TEXT("Player is visible: %s"), m_char->m_isVisible ? TEXT("true") : TEXT("false"));
 }
 
 // Called to bind functionality to input
 void ABaseAICharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 

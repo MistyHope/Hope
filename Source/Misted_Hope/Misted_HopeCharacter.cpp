@@ -35,6 +35,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	,m_PlayerHope(100)
 	,m_NormalHerbValue(5)
 	,m_SpecialHerbValue(5)
+	,m_isVisible(true)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;

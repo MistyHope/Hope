@@ -34,6 +34,8 @@ public:
 		float GetCapsuleRadius();
 	UFUNCTION()
 		float GetCapsuleHalfHeight();
+	UFUNCTION()
+		void SetIndex();
 
 	UPROPERTY(EditAnywhere, Category = Pawn)
 		class USkeletalMeshComponent* m_SkelMesh;
@@ -63,12 +65,13 @@ public:
 		class UPawnSensingComponent* m_PawnSensing; 
 	UPROPERTY(EditAnywhere, Category = AI)
 		class UBehaviorTree* m_behaviorTree; 
-	UPROPERTY()
-		bool m_SeePawn; 
+	UPROPERTY(EditAnywhere, Category = AI)
+		float m_patrolDelay; 
 
-	
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
 
+
+	FTimerHandle m_timerHandle; 
 	uint32 m_instanceNum;
 	uint8 m_targetIndex;
 	uint32 GetCurrentInstanceNum();
