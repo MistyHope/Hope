@@ -29,6 +29,8 @@ public:
 	UFUNCTION()
 		void TargetIsInFOV(APawn* pawn);
 	UFUNCTION()
+		void TargetIsNotInFOV();
+	UFUNCTION()
 		float GetCapsuleRadius();
 	UFUNCTION()
 		float GetCapsuleHalfHeight();
@@ -55,9 +57,8 @@ public:
 	UPROPERTY()
 		class AMisted_HopeCharacter* m_char; 
 
-
-
-
+	UPROPERTY(EditAnywhere, Category = AI)
+		TArray<AActor*> m_AITargetPoints;
 	UPROPERTY(EditAnywhere, Category = AI)
 		class UPawnSensingComponent* m_PawnSensing; 
 	UPROPERTY(EditAnywhere, Category = AI)
@@ -66,5 +67,14 @@ public:
 		bool m_SeePawn; 
 
 	
-	
+	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
+
+	uint32 m_instanceNum;
+	uint8 m_targetIndex; 
+	uint32 GetCurrentInstanceNum();
+
+
+
 };
+
+static uint32 s_numberOfAIInstances = 0;

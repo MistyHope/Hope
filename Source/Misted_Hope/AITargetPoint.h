@@ -13,8 +13,14 @@ UCLASS()
 class MISTED_HOPE_API AAITargetPoint : public ATargetPoint
 {
 	GENERATED_BODY()
+
+		AAITargetPoint();
 	
-	
-	
-	
+	public:
+		UPROPERTY(EditAnywhere, Category = Controller)
+			class ABaseAICharacter* m_BaseAICharacter;
+
+		UFUNCTION()
+			ABaseAICharacter* GetCurrentChar();
+
 };

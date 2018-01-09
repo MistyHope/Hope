@@ -27,7 +27,7 @@ public:
 	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override; 
 
 
-	void SetMovingKey(class UBlackboardComponent* blackBoardComp, class ABaseAIController* baseAiController);
+	EBTNodeResult::Type SetMovingKey(class UBlackboardComponent* blackBoardComp, class ABaseAIController* baseAiController);
 
 
 

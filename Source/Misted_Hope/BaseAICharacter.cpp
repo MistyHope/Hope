@@ -8,6 +8,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "Misted_HopeCharacter.h"
+#include "Engine/Engine.h"
 
 
 
@@ -17,6 +18,7 @@ ABaseAICharacter::ABaseAICharacter()
 	, m_frontGroundOffset(30)
 	,m_Damage(5)
 	,m_PushBackForce(5)
+	, m_targetIndex(0)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -45,8 +47,15 @@ ABaseAICharacter::ABaseAICharacter()
 
 	m_PawnSensing->SetPeripheralVisionAngle(90); 
 
-
+	s_numberOfAIInstances++;
 }
+
+
+uint32 ABaseAICharacter::GetCurrentInstanceNum()
+{
+	return m_instanceNum;
+}
+
 
 void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 {
@@ -55,6 +64,10 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 	if (baseController)
 	{
 		baseController->SetVisibleTarget(pawn);
+		if (GEngine)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target is in FOV"));
+		}
 	}
 
 }
@@ -64,10 +77,28 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 void ABaseAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+}
+
+void ABaseAICharacter::TargetIsNotInFOV()
+{
+	ABaseAIController* baseController = Cast<ABaseAIController>(GetController());
+	if (baseController)
+	{
+		if (baseController->Patrol(m_targetIndex))
+		{
+			if (m_targetIndex <= m_AITargetPoints.Num())
+				m_targetIndex++;
+			else
+				m_targetIndex = 0;
+		}
+	}
+}
+
+// Called every frame
+void ABaseAICharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
 	m_controller = Cast<ASmallEnemyController>(GetController());
-	m_controller->SetForwardOffset(m_frontGroundOffset);
-	m_controller->SetGroundOffset(m_groundOffset);
-	m_controller->SetDamage(m_Damage);
 	m_char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 	if (m_PawnSensing)
 	{
@@ -78,19 +109,20 @@ void ABaseAICharacter::BeginPlay()
 				m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
 				m_SeePawn = true;
 			}
+			else
+			{
+				m_SeePawn = false; 
+				TargetIsNotInFOV();
+
+			}
 		}
 		else
 		{
 			m_SeePawn = false; 
+			TargetIsNotInFOV();
+
 		}
 	}
-}
-
-// Called every frame
-void ABaseAICharacter::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -111,3 +143,5 @@ float ABaseAICharacter::GetCapsuleRadius()
 {
 	return GetCapsuleComponent()->GetScaledCapsuleRadius();
 }
+
+

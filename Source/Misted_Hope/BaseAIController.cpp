@@ -9,17 +9,13 @@
 #include "BehaviorTree/BehaviorTree.h"
 #include "AITargetPoint.h"
 #include "Kismet/GameplayStatics.h"
+#include "Engine/Engine.h"
 
 ABaseAIController::ABaseAIController()
-	:m_forwardGroundOffset(0)
-	, m_groundOffset(0)
+	: m_groundOffset(0)
 	, m_TargetKey("Target")
 	, m_LocationToGoKey("LocationToGo")
 {
-	m_behaviorTree = CreateDefaultSubobject<UBehaviorTreeComponent>(TEXT("BehaviorComp"));
-
-	m_blackBoardComp = CreateDefaultSubobject<UBlackboardComponent>(TEXT("BlackBoardComp")); 
-
 
 }
 
@@ -29,35 +25,31 @@ void ABaseAIController::Possess(class APawn* InPawn)
 	Super::Possess(InPawn);
 	SetPawn(InPawn);
 	m_baseAIChar = Cast<ABaseAICharacter>(InPawn);
-
-
-
-	if (m_baseAIChar)
-	{
-		if (m_baseAIChar->m_behaviorTree->BlackboardAsset)
-		{
-			m_blackBoardComp->InitializeBlackboard(*(m_baseAIChar->m_behaviorTree->BlackboardAsset));
-		}
-		UGameplayStatics::GetAllActorsOfClass(GetWorld(), AAITargetPoint::StaticClass(), m_AITargetPoints); 
-
-		m_behaviorTree->StartTree(*m_baseAIChar->m_behaviorTree);
-	}
-
-
+	m_AITargetPoints = m_baseAIChar->GetAvailableTargetPoints();
 
 }
 
 
-void ABaseAIController::SetDamage(float Value)
-{
-	m_Damage = Value; 
-}
+
 
 void ABaseAIController::SetVisibleTarget(APawn* InPawn)
 {
-	if (m_blackBoardComp)
+	MoveToActor(InPawn);
+}
+
+bool ABaseAIController::Patrol(uint8 index)
+{
+	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
+	if (GEngine)
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Black, TEXT("FUCK YOU"));
+	switch (result)
 	{
-		m_blackBoardComp->SetValueAsObject(m_TargetKey, InPawn);
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+			return true; 
+			break; 
+	default: 
+		return false; 
+		break; 
 	}
 }
 
@@ -70,9 +62,4 @@ void ABaseAIController::Attack()
 void ABaseAIController::SetGroundOffset(float value)
 {
 	m_groundOffset = value;
-}
-
-void ABaseAIController::SetForwardOffset(float value)
-{
-	m_forwardGroundOffset = value;
 }

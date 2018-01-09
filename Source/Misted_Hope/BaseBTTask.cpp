@@ -4,51 +4,61 @@
 #include "BaseAIController.h"
 #include "AITargetPoint.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "BaseAICharacter.h"
 
 EBTNodeResult::Type UBaseBTTask::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
-	ABaseAIController* baseController = Cast<ABaseAIController>(OwnerComp.GetAIOwner()); 
+	//ABaseAIController* baseController = Cast<ABaseAIController>(OwnerComp.GetAIOwner());
 
-	if (baseController)
-	{
+	//if (baseController)
+	//{
 
-		UBlackboardComponent* blackBoardComp = baseController->GetBlackBoardComp();
+	//	UBlackboardComponent* blackBoardComp = baseController->GetBlackBoardComp();
 
-		SetMovingKey(blackBoardComp, baseController);
-
-		if (blackBoardComp->GetValueAsObject("Target"))
-			return EBTNodeResult::Failed;
-
-
-		blackBoardComp->GetValueAsObject("LocationToGo");
-		return EBTNodeResult::Succeeded;
-		
-
-	}
-	else
-		return EBTNodeResult::Failed; 
+	//	return SetMovingKey(blackBoardComp, baseController);
+	//}
+	//else
+		return EBTNodeResult::Failed;
 }
 
-void UBaseBTTask::SetMovingKey(UBlackboardComponent* blackBoardComp, ABaseAIController* baseAiController)
+EBTNodeResult::Type UBaseBTTask::SetMovingKey(UBlackboardComponent* blackBoardComp, ABaseAIController* baseAiController)
 {
-	TArray<AActor*> availableTargetPoints = baseAiController->GetAvailableTargetPoints();
+	/*TArray<AActor*> availableTargetPoints = baseAiController->GetAvailableTargetPoints();
 
 	int32 Index = 0;
 	AAITargetPoint* currentPoint = Cast<AAITargetPoint>(blackBoardComp->GetValueAsObject("LocationToGo"));
 
 	AAITargetPoint* nextTargetPoint = nullptr;
 
-	do
+	ABaseAICharacter* baseChar = Cast<ABaseAICharacter>(baseAiController->GetCharacter());
+	uint32 charInstance = baseChar->GetCurrentInstanceNum();
+	EPathFollowingRequestResult::Type resultType;
+	if (baseChar)
 	{
-		if (Index > availableTargetPoints.Num())
-			Index = 0;
-		nextTargetPoint = Cast<AAITargetPoint>(availableTargetPoints[Index]);
-		Index++;
-		baseAiController->MoveToActor(nextTargetPoint);
-	} while (currentPoint == nextTargetPoint);
+		do
+		{
+			if (Index >= availableTargetPoints.Num())
+				Index = 0;
+			nextTargetPoint = Cast<AAITargetPoint>(availableTargetPoints[Index]);
+			uint32 nextTargetInstance = nextTargetPoint->GetCurrentChar()->GetCurrentInstanceNum();
+			if (nextTargetInstance == charInstance)
+			{
+				Index++;
+				if (blackBoardComp->GetValueAsObject("Target"))
+					return EBTNodeResult::Failed;
+				resultType = baseAiController->MoveToActor(nextTargetPoint);
+				
+			}
+			else
+				return EBTNodeResult::Failed;
+		} while (currentPoint == nextTargetPoint);
 
 
-	blackBoardComp->SetValueAsObject("LocationToGo", nextTargetPoint);
-
+			blackBoardComp->SetValueAsObject("LocationToGo", nextTargetPoint);
+			return EBTNodeResult::Succeeded;
+	}
+	else
+		return EBTNodeResult::Failed;*/
+	return EBTNodeResult::Failed; 
 }
 
