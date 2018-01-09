@@ -70,7 +70,7 @@ public:
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
 
 	uint32 m_instanceNum;
-	uint8 m_targetIndex; 
+	uint8 m_targetIndex;
 	uint32 GetCurrentInstanceNum();
 
 

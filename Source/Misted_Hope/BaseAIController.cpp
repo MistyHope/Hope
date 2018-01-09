@@ -40,17 +40,17 @@ void ABaseAIController::SetVisibleTarget(APawn* InPawn)
 bool ABaseAIController::Patrol(uint8 index)
 {
 	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
-	if (GEngine)
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Black, TEXT("FUCK YOU"));
 	switch (result)
 	{
 	case EPathFollowingRequestResult::AlreadyAtGoal:
-			return true; 
+	if (GEngine)
+		return true; 
 			break; 
 	default: 
 		return false; 
-		break; 
+			break; 
 	}
+	return false; 
 }
 
 

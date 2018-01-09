@@ -46,6 +46,7 @@ ABaseAICharacter::ABaseAICharacter()
 	m_PawnSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("Perception")); 
 
 	m_PawnSensing->SetPeripheralVisionAngle(90); 
+	m_PawnSensing->bOnlySensePlayers = true;
 
 	s_numberOfAIInstances++;
 }
@@ -60,13 +61,18 @@ uint32 ABaseAICharacter::GetCurrentInstanceNum()
 void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 {
 	ABaseAIController* baseController = Cast<ABaseAIController>(GetController()); 
+	m_SeePawn = true;
+	m_char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
 
 	if (baseController)
 	{
-		baseController->SetVisibleTarget(pawn);
-		if (GEngine)
+		if (m_PawnSensing->HasLineOfSightTo(m_char) && m_char->m_isVisible)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target is in FOV"));
+			baseController->SetVisibleTarget(pawn);
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Target is in FOV"));
+			}
 		}
 	}
 
@@ -77,6 +83,14 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 void ABaseAICharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	m_controller = Cast<ASmallEnemyController>(GetController());
+	if (m_PawnSensing)
+	{
+
+		m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
+
+	}
 }
 
 void ABaseAICharacter::TargetIsNotInFOV()
@@ -86,7 +100,7 @@ void ABaseAICharacter::TargetIsNotInFOV()
 	{
 		if (baseController->Patrol(m_targetIndex))
 		{
-			if (m_targetIndex <= m_AITargetPoints.Num())
+			if (m_targetIndex < m_AITargetPoints.Num()-1)
 				m_targetIndex++;
 			else
 				m_targetIndex = 0;
@@ -98,31 +112,10 @@ void ABaseAICharacter::TargetIsNotInFOV()
 void ABaseAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	m_controller = Cast<ASmallEnemyController>(GetController());
-	m_char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
-	if (m_PawnSensing)
-	{
-		if (m_PawnSensing->HasLineOfSightTo(GetWorld()->GetFirstPlayerController()->GetPawn()))
-		{
-			if (!m_char->m_isVisible)
-			{
-				m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
-				m_SeePawn = true;
-			}
-			else
-			{
-				m_SeePawn = false; 
-				TargetIsNotInFOV();
+	if(!m_SeePawn)
+		TargetIsNotInFOV();
 
-			}
-		}
-		else
-		{
-			m_SeePawn = false; 
-			TargetIsNotInFOV();
-
-		}
-	}
+	UE_LOG(LogTemp, Warning, TEXT("SeePlayer: %s"), m_SeePawn ? TEXT("true") : TEXT("false"));
 }
 
 // Called to bind functionality to input
