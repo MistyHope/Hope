@@ -67,7 +67,7 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 		else
 			m_seePawn = false; 
 	}
-
+	m_seePawn = false; 
 }
 
 
@@ -106,9 +106,9 @@ void ABaseAICharacter::TargetIsNotInFOV()
 void ABaseAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), m_PawnSensing->HasLineOfSightTo(m_char) ? TEXT("true") : TEXT("false"));
+	UE_LOG(LogTemp, Warning, TEXT("%s"), m_seePawn ? TEXT("true") : TEXT("false"));
 
-	if ((!m_PawnSensing->HasLineOfSightTo(m_char) || (m_PawnSensing->HasLineOfSightTo(m_char) && !m_char->m_isVisible)))
+	if ((!m_seePawn || m_seePawn && !m_char->m_isVisible))
 		TargetIsNotInFOV();
 }
 
