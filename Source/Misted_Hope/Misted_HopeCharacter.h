@@ -66,6 +66,9 @@ public:
 	
 	bool m_bGrounded; 
 
+	UPROPERTY()
+		bool m_isVisible; 
+
 	float m_distToBox; 
 
 	FVector m_LastGroundedPos; 
@@ -90,7 +93,8 @@ public:
 	void UnPushObjects();
 
 	void UpdateCharacter();
-
+	UFUNCTION()
+		void PushBack(FVector vec);
 	UFUNCTION()
 		void TrampolineJump(float jumpMultiplicator); 
 	UFUNCTION()

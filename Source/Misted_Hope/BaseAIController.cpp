@@ -3,33 +3,63 @@
 #include "BaseAIController.h"
 #include "Runtime/Engine/Public/CollisionQueryParams.h"
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
+#include "BaseAICharacter.h"
+#include "BehaviorTree/BlackboardComponent.h"
+#include "BehaviorTree/BehaviorTreeComponent.h"
+#include "BehaviorTree/BehaviorTree.h"
+#include "AITargetPoint.h"
+#include "Kismet/GameplayStatics.h"
+#include "Engine/Engine.h"
+
+ABaseAIController::ABaseAIController()
+	: m_groundOffset(0)
+	, m_TargetKey("Target")
+	, m_LocationToGoKey("LocationToGo")
+{
+
+}
 
 
 void ABaseAIController::Possess(class APawn* InPawn)
 {
-	SetPawn(InPawn); 
-	this->Possess(InPawn); 
+	Super::Possess(InPawn);
+	SetPawn(InPawn);
+	m_baseAIChar = Cast<ABaseAICharacter>(InPawn);
+	m_AITargetPoints = m_baseAIChar->GetAvailableTargetPoints();
+
 }
 
-bool ABaseAIController::Move(const FVector location)
+
+
+
+void ABaseAIController::SetVisibleTarget(APawn* InPawn)
 {
-	FHitResult RV_HIT(ForceInit);
-	FCollisionQueryParams RV_Query = FCollisionQueryParams(FName(TEXT("RV_Trace")), true, this);
-	FVector LineTraceDir = (GetPawn()->GetActorLocation() + GetPawn()->GetActorForwardVector() * 50);
-	bool hitResult = GetPawn()->ActorLineTraceSingle(RV_HIT, LineTraceDir, LineTraceDir - GetPawn()->GetActorUpVector() * 50, ECC_WorldStatic, RV_Query);
-	if (hitResult)
-	{
-		MoveToLocation(location);
-		return true;
-	}
-	else
-	{
-		return false;
-	}
-	return true;
+	MoveToActor(InPawn);
 }
+
+bool ABaseAIController::Patrol(uint8 index)
+{
+	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
+	switch (result)
+	{
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+	if (GEngine)
+		return true; 
+			break; 
+	default: 
+		return false; 
+			break; 
+	}
+	return false; 
+}
+
 
 void ABaseAIController::Attack()
 {
 
+}
+
+void ABaseAIController::SetGroundOffset(float value)
+{
+	m_groundOffset = value;
 }
