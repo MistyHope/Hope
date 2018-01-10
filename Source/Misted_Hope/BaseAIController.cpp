@@ -40,10 +40,10 @@ void ABaseAIController::SetVisibleTarget(APawn* InPawn)
 bool ABaseAIController::Patrol(uint8 index)
 {
 	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *m_AITargetPoints[index]->GetFName().ToString())
 	switch (result)
 	{
 	case EPathFollowingRequestResult::AlreadyAtGoal:
-	if (GEngine)
 		return true; 
 			break; 
 	default: 

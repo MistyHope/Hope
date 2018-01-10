@@ -246,7 +246,7 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 
 void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
 	m_bNearBox = false;
 	m_NearActor = nullptr; 
 	m_bIsPushing = false; 

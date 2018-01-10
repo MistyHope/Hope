@@ -14,23 +14,17 @@
 
 // Sets default values
 ABaseAICharacter::ABaseAICharacter()
-	:m_groundOffset(30)
-	, m_frontGroundOffset(30)
-	,m_Damage(5)
+	:m_Damage(5)
 	,m_PushBackForce(5)
 	, m_targetIndex(0)
 	,m_patrolDelay(5)
+	,m_seePawn(false)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 
-	m_ArmCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Arm Collider"));
-	m_ArmCollider->SetupAttachment(RootComponent);
-
-	m_LegCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Leg Collider"));
-	m_LegCollider->SetupAttachment(RootComponent);
-
+	
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->GetNavAgentProperties()->bCanCrouch = true;
 
@@ -62,13 +56,16 @@ uint32 ABaseAICharacter::GetCurrentInstanceNum()
 void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 {
 	ABaseAIController* baseController = Cast<ABaseAIController>(GetController()); 
-
+	m_seePawn = true; 
 	if (baseController)
 	{
 		if (m_PawnSensing->HasLineOfSightTo(m_char) && m_char->m_isVisible)
 		{
+			UE_LOG(LogTemp, Warning, TEXT("FUCK U MOTHERFUCKING SHIT AI"));
 			baseController->SetVisibleTarget(pawn);
 		}
+		else
+			m_seePawn = false; 
 	}
 
 }
@@ -83,9 +80,7 @@ void ABaseAICharacter::BeginPlay()
 	m_controller = Cast<ASmallEnemyController>(GetController());
 	if (m_PawnSensing)
 	{
-
 		m_PawnSensing->OnSeePawn.AddDynamic(this, &ABaseAICharacter::TargetIsInFOV);
-
 	}
 }
 
@@ -105,21 +100,16 @@ void ABaseAICharacter::TargetIsNotInFOV()
 	}
 }
 
-void ABaseAICharacter::SetIndex()
-{
 
-}
 
 // Called every frame
 void ABaseAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), m_PawnSensing->HasLineOfSightTo(m_char) ? TEXT("true") : TEXT("false"));
 
-	if(!m_PawnSensing->HasLineOfSightTo(m_char))
+	if ((!m_PawnSensing->HasLineOfSightTo(m_char) || (m_PawnSensing->HasLineOfSightTo(m_char) && !m_char->m_isVisible)))
 		TargetIsNotInFOV();
-
-	//UE_LOG(LogTemp, Warning, TEXT("See Player: %s"), m_PawnSensing->HasLineOfSightTo(m_char) ? TEXT("true") : TEXT("false")); 
-	UE_LOG(LogTemp, Warning, TEXT("Player is visible: %s"), m_char->m_isVisible ? TEXT("true") : TEXT("false"));
 }
 
 // Called to bind functionality to input
