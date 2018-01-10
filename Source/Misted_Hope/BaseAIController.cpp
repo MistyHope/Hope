@@ -15,6 +15,7 @@ ABaseAIController::ABaseAIController()
 	: m_groundOffset(0)
 	, m_TargetKey("Target")
 	, m_LocationToGoKey("LocationToGo")
+	, m_maxAttackRange(80)
 {
 
 }
@@ -32,15 +33,31 @@ void ABaseAIController::Possess(class APawn* InPawn)
 
 
 
-void ABaseAIController::SetVisibleTarget(APawn* InPawn)
+EPathFollowingRequestResult::Type ABaseAIController::SetVisibleTarget(APawn* InPawn)
 {
-	MoveToActor(InPawn);
+	EPathFollowingRequestResult::Type result = MoveToActor(InPawn, m_maxAttackRange);
+	switch (result)
+	{
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+		UE_LOG(LogTemp, Warning, TEXT("AlreadyAtGoal"));
+		StopMovement();
+		break;
+	case EPathFollowingRequestResult::Failed:
+		UE_LOG(LogTemp, Warning, TEXT("Failed"));
+		break; 
+	case EPathFollowingRequestResult::RequestSuccessful:
+		UE_LOG(LogTemp, Warning, TEXT("Success"));
+		break;
+	default: 
+		UE_LOG(LogTemp, Warning, TEXT("Default"));
+		break;
+	}
+	return result;
 }
 
 bool ABaseAIController::Patrol(uint8 index)
 {
 	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *m_AITargetPoints[index]->GetFName().ToString())
 	switch (result)
 	{
 	case EPathFollowingRequestResult::AlreadyAtGoal:
@@ -51,12 +68,6 @@ bool ABaseAIController::Patrol(uint8 index)
 			break; 
 	}
 	return false; 
-}
-
-
-void ABaseAIController::Attack()
-{
-
 }
 
 void ABaseAIController::SetGroundOffset(float value)

@@ -19,20 +19,14 @@ public:
 	ABaseAIController();
 
 	virtual void Possess(class APawn* InPawn) override; 
-	virtual void Attack(); 
 
  
 	UFUNCTION()
 		void SetGroundOffset(float value); 
 
-	UPROPERTY(EditAnywhere, Category = Movement)
-		float m_moveDistance; 
 	UPROPERTY(EditAnywhere, Category = Attacking)
 		float m_maxAttackRange; 
-	UPROPERTY(EditAnywhere, Category = Attacking)
-		float m_attackCD; 
-	UPROPERTY(EditAnywhere, Category = Attacking)
-		float m_Damage;
+
 
 
 	UPROPERTY()
@@ -48,7 +42,7 @@ public:
 
 
 	UFUNCTION()
-		void SetVisibleTarget(APawn* InPawn); 
+		EPathFollowingRequestResult::Type SetVisibleTarget(APawn* InPawn);
 	UFUNCTION()
 		bool Patrol(uint8 index);
 	UFUNCTION()

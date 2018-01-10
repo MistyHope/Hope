@@ -19,6 +19,9 @@ ABaseAICharacter::ABaseAICharacter()
 	, m_targetIndex(0)
 	,m_patrolDelay(5)
 	,m_seePawn(false)
+	,m_attackCD(3)
+	, m_canAttack(true)
+
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -62,14 +65,52 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 		if (m_PawnSensing->HasLineOfSightTo(m_char) && m_char->m_isVisible)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("FUCK U MOTHERFUCKING SHIT AI"));
-			baseController->SetVisibleTarget(pawn);
+			EPathFollowingRequestResult::Type result = baseController->SetVisibleTarget(pawn);
+			switch (result)
+			{
+			case EPathFollowingRequestResult::AlreadyAtGoal:
+				UE_LOG(LogTemp, Warning, TEXT("AlreadyAtGoal")); 
+				if (m_canAttack)
+				{
+					if (Attack())
+					{
+						m_canAttack = true;
+						GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanAttack, m_attackCD, true);
+					}
+				}
+
+				break;
+			default:
+				UE_LOG(LogTemp, Warning, TEXT("Default"));
+				break;
+			}
 		}
 		else
 			m_seePawn = false; 
 	}
-	m_seePawn = false; 
+	else 
+		m_seePawn = false; 
+
+	GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanSee, m_patrolDelay, true);
 }
 
+void ABaseAICharacter::SwitchCanAttack()
+{
+	m_canAttack = !m_canAttack;
+}
+
+void ABaseAICharacter::SwitchCanSee()
+{
+	m_seePawn = !m_seePawn; 
+}
+
+
+bool ABaseAICharacter::Attack()
+{
+	m_char->Hurt(m_Damage); 
+	m_char->PushBack(GetActorForwardVector()*m_PushBackForce);
+	return true; 
+}
 
 // Called when the game starts or when spawned
 void ABaseAICharacter::BeginPlay()
@@ -100,16 +141,15 @@ void ABaseAICharacter::TargetIsNotInFOV()
 	}
 }
 
-
-
 // Called every frame
 void ABaseAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UE_LOG(LogTemp, Warning, TEXT("%s"), m_seePawn ? TEXT("true") : TEXT("false"));
 
 	if ((!m_seePawn || m_seePawn && !m_char->m_isVisible))
 		TargetIsNotInFOV();
+	else if(m_canAttack)
+		TargetIsInFOV(m_char);
 }
 
 // Called to bind functionality to input

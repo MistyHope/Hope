@@ -47,10 +47,13 @@ void AHideSpots::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 
 void AHideSpots::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
+	if (OtherActor)
 	{
-		AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
-		Character->m_isVisible = true;
+		if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
+		{
+			AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
+			Character->m_isVisible = true;
+		}
 	}
 }
 

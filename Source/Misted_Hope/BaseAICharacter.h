@@ -34,13 +34,20 @@ public:
 		float GetCapsuleRadius();
 	UFUNCTION()
 		float GetCapsuleHalfHeight();
+	UFUNCTION()
+		bool Attack();
+	UFUNCTION()
+		void SwitchCanAttack();
+	UFUNCTION()
+		void SwitchCanSee(); 
 
 
 	UPROPERTY(EditAnywhere, Category = Attack)
 		float m_Damage; 
 	UPROPERTY(EditAnywhere, Category = Attack)
 		float m_PushBackForce;
-
+	UPROPERTY(EditAnywhere, Category = Attack)
+		float m_attackCD;
 
 	UPROPERTY()
 		class ABaseAIController* m_controller;
@@ -55,6 +62,8 @@ public:
 		float m_patrolDelay; 
 	UPROPERTY()
 		bool m_seePawn;
+	UPROPERTY()
+		bool m_canAttack; 
 
 
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
