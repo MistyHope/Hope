@@ -51,19 +51,15 @@ EPathFollowingRequestResult::Type ABaseAIController::SetVisibleTarget(APawn* InP
 	return result;
 }
 
-bool ABaseAIController::Patrol(uint8 index)
+void ABaseAIController::StopTheMovement()
+{
+	StopMovement();
+}
+
+EPathFollowingRequestResult::Type ABaseAIController::Patrol(uint8 index)
 {
 	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
-	switch (result)
-	{
-	case EPathFollowingRequestResult::AlreadyAtGoal:
-		return true; 
-			break; 
-	default: 
-		return false; 
-			break; 
-	}
-	return false; 
+	return result; 
 }
 
 void ABaseAIController::SetGroundOffset(float value)

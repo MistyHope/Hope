@@ -23,6 +23,8 @@ public:
  
 	UFUNCTION()
 		void SetGroundOffset(float value); 
+	UFUNCTION()
+		void StopTheMovement();
 
 	UPROPERTY(EditAnywhere, Category = Attacking)
 		float m_maxAttackRange; 
@@ -44,7 +46,7 @@ public:
 	UFUNCTION()
 		EPathFollowingRequestResult::Type SetVisibleTarget(APawn* InPawn);
 	UFUNCTION()
-		bool Patrol(uint8 index);
+		EPathFollowingRequestResult::Type Patrol(uint8 index);
 	UFUNCTION()
 		TArray<AActor*> GetAvailableTargetPoints() { return m_AITargetPoints; }
 protected: 

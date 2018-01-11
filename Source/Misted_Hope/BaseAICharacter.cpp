@@ -21,7 +21,7 @@ ABaseAICharacter::ABaseAICharacter()
 	,m_seePawn(false)
 	,m_attackCD(3)
 	, m_canAttack(true)
-
+	,m_isPatrolling(true)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -58,13 +58,16 @@ uint32 ABaseAICharacter::GetCurrentInstanceNum()
 
 void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 {
+	m_isPatrolling = false; 
 	ABaseAIController* baseController = Cast<ABaseAIController>(GetController()); 
-	m_seePawn = true; 
 	if (baseController)
 	{
 		if (m_PawnSensing->HasLineOfSightTo(m_char) && m_char->m_isVisible)
 		{
 			EPathFollowingRequestResult::Type result = baseController->SetVisibleTarget(pawn);
+			float dist = FVector::Dist(pawn->GetActorLocation(), GetActorLocation());
+			if (dist < baseController->m_maxAttackRange)
+				result = EPathFollowingRequestResult::AlreadyAtGoal;
 			switch (result)
 			{
 			case EPathFollowingRequestResult::AlreadyAtGoal:
@@ -72,22 +75,24 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 				{
 					if (Attack())
 					{
+						UE_LOG(LogTemp, Warning, TEXT("I can see u"));
+						baseController->StopTheMovement();
 						m_canAttack = false;
-						GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanAttack, m_attackCD, true);
+						if (!m_canAttack)
+							GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanAttack, m_attackCD);
 					}
 				}
 				break;
 			default:
+				UE_LOG(LogTemp, Warning, TEXT("I can't see u"));
 				break;
 			}
 		}
-		else
-			m_seePawn = false; 
 	}
-	else 
-		m_seePawn = false; 
-	if(m_seePawn)
-		GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanSee, m_patrolDelay, true);
+
+
+
+
 }
 
 void ABaseAICharacter::SwitchCanAttack()
@@ -99,9 +104,14 @@ void ABaseAICharacter::SwitchCanAttack()
 
 void ABaseAICharacter::SwitchCanSee()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Switch the SeePawn"));
+	UE_LOG(LogTemp, Warning, TEXT("Switch the SeePawn to:%s"), m_seePawn? TEXT("false") : TEXT("true"));
 
 	m_seePawn = !m_seePawn; 
+}
+
+void ABaseAICharacter::SwitchPatrolling()
+{
+	m_isPatrolling = !m_isPatrolling;
 }
 
 
@@ -130,13 +140,27 @@ void ABaseAICharacter::TargetIsNotInFOV()
 	ABaseAIController* baseController = Cast<ABaseAIController>(GetController());
 	if (baseController)
 	{
-		if (baseController->Patrol(m_targetIndex))
+		switch(baseController->Patrol(m_targetIndex))
 		{
+		case EPathFollowingRequestResult::AlreadyAtGoal:
+			UE_LOG(LogTemp, Warning, TEXT("At Goal"));
+
 			if (m_targetIndex < m_AITargetPoints.Num() - 1)
 				m_targetIndex++;
 			else
 				m_targetIndex = 0;
-		
+
+			GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchPatrolling, m_patrolDelay);
+			break;
+		case EPathFollowingRequestResult::RequestSuccessful:
+			UE_LOG(LogTemp, Warning, TEXT("Success"));
+
+			m_isPatrolling = true; 
+			break;
+		case EPathFollowingRequestResult::Failed:
+			UE_LOG(LogTemp, Warning, TEXT("Failed")); 
+			m_isPatrolling = false; 
+			break;
 		}
 	}
 }
@@ -146,10 +170,9 @@ void ABaseAICharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if ((!m_seePawn || m_seePawn && !m_char->m_isVisible))
+	if(m_isPatrolling)
 		TargetIsNotInFOV();
-	else if(m_canAttack)
-		TargetIsInFOV(m_char);
+
 }
 
 // Called to bind functionality to input

@@ -40,6 +40,8 @@ public:
 		void SwitchCanAttack();
 	UFUNCTION()
 		void SwitchCanSee(); 
+	UFUNCTION()
+		void SwitchPatrolling();
 
 
 	UPROPERTY(EditAnywhere, Category = Attack)
@@ -64,6 +66,8 @@ public:
 		bool m_seePawn;
 	UPROPERTY()
 		bool m_canAttack; 
+	UPROPERTY()
+		bool m_isPatrolling; 
 
 
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
