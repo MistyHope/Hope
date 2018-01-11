@@ -15,6 +15,7 @@ ABaseAIController::ABaseAIController()
 	: m_groundOffset(0)
 	, m_TargetKey("Target")
 	, m_LocationToGoKey("LocationToGo")
+	, m_maxAttackRange(80)
 {
 
 }
@@ -32,9 +33,22 @@ void ABaseAIController::Possess(class APawn* InPawn)
 
 
 
-void ABaseAIController::SetVisibleTarget(APawn* InPawn)
+EPathFollowingRequestResult::Type ABaseAIController::SetVisibleTarget(APawn* InPawn)
 {
-	MoveToActor(InPawn);
+	EPathFollowingRequestResult::Type result = MoveToActor(InPawn, m_maxAttackRange);
+	switch (result)
+	{
+	case EPathFollowingRequestResult::AlreadyAtGoal:
+		StopMovement();
+		break;
+	case EPathFollowingRequestResult::Failed:
+		break; 
+	case EPathFollowingRequestResult::RequestSuccessful:
+		break;
+	default: 
+		break;
+	}
+	return result;
 }
 
 bool ABaseAIController::Patrol(uint8 index)
@@ -43,7 +57,6 @@ bool ABaseAIController::Patrol(uint8 index)
 	switch (result)
 	{
 	case EPathFollowingRequestResult::AlreadyAtGoal:
-	if (GEngine)
 		return true; 
 			break; 
 	default: 
@@ -51,12 +64,6 @@ bool ABaseAIController::Patrol(uint8 index)
 			break; 
 	}
 	return false; 
-}
-
-
-void ABaseAIController::Attack()
-{
-
 }
 
 void ABaseAIController::SetGroundOffset(float value)

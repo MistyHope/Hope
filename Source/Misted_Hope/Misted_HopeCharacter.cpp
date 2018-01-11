@@ -35,6 +35,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	,m_PlayerHope(100)
 	,m_NormalHerbValue(5)
 	,m_SpecialHerbValue(5)
+	,m_isVisible(true)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -245,7 +246,7 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 
 void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
+	m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
 	m_bNearBox = false;
 	m_NearActor = nullptr; 
 	m_bIsPushing = false; 
