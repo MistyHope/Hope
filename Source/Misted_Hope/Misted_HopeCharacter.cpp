@@ -70,7 +70,6 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	GetCharacterMovement()->GetNavAgentProperties()->bCanCrouch = true; 
 
-
 	// Lock character motion onto the XZ plane, so the character can't move in or out of the screen
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->SetPlaneConstraintNormal(FVector(0.0f, -1.0f, 0.0f));
@@ -147,8 +146,10 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 	{
 		AddMovementInput(FVector(.2,0,0), Value);
 
-		m_NearActor->GetRootPrimitiveComponent()->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(true);
+		UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
+
+		nearActorPrim->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+		nearActorPrim->SetSimulatePhysics(true);
 		if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, m_NearActor->GetActorLocation(), m_NearActor->GetActorLocation() + FVector(50 * Value, 0, 0), ECC_WorldStatic))
 			m_NearActor->SetActorLocation(FVector(GetActorLocation().X + m_distToBox, m_NearActor->GetActorLocation().Y, m_NearActor->GetActorLocation().Z));
 	}		
@@ -157,7 +158,7 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 
 void AMisted_HopeCharacter::TrampolineJump(float jumpMultiplicator)
 {
-	LaunchCharacter(FVector(0, 0, jumpMultiplicator), false, true);
+	this->LaunchCharacter(FVector(0, 0, jumpMultiplicator), false, true);
 }
 
 void AMisted_HopeCharacter::ToggleCrouch()
@@ -246,10 +247,14 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 
 void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	m_NearActor->GetRootPrimitiveComponent()->SetSimulatePhysics(false);
-	m_bNearBox = false;
-	m_NearActor = nullptr; 
-	m_bIsPushing = false; 
+	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
+	{
+		UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
+		nearActorPrim->SetSimulatePhysics(false);
+		m_bNearBox = false;
+		m_NearActor = nullptr;
+		m_bIsPushing = false;
+	}
 }
 
 void AMisted_HopeCharacter::UpdateCharacter()
