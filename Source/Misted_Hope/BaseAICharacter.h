@@ -39,8 +39,6 @@ public:
 	UFUNCTION()
 		void SwitchCanAttack();
 	UFUNCTION()
-		void SwitchCanSee(); 
-	UFUNCTION()
 		void SwitchPatrolling();
 
 
@@ -68,6 +66,8 @@ public:
 		bool m_canAttack; 
 	UPROPERTY()
 		bool m_isPatrolling; 
+	UPROPERTY(EditAnywhere, Category = AI)
+		float m_attentionDelay; 
 
 
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}

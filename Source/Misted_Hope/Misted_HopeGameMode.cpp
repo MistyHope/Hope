@@ -2,6 +2,7 @@
 
 #include "Misted_HopeGameMode.h"
 #include "Misted_HopeCharacter.h"
+#include "Blueprint/UserWidget.h"
 
 AMisted_HopeGameMode::AMisted_HopeGameMode()
 {
@@ -9,6 +10,6 @@ AMisted_HopeGameMode::AMisted_HopeGameMode()
 	DefaultPawnClass = AMisted_HopeCharacter::StaticClass();
 
 
-
 }
+
 

@@ -22,6 +22,7 @@ ABaseAICharacter::ABaseAICharacter()
 	, m_attackCD(3)
 	, m_canAttack(true)
 	, m_isPatrolling(true)
+	,m_attentionDelay(.8f)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -99,9 +100,7 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 						UE_LOG(LogTemp, Warning, TEXT("I can't reach u"));
 						break;
 					}
-
 				}
-
 			}
 		}
 		else if (x.X > GetActorLocation().X && (FVector::Dist(GetActorLocation(), m_char->GetActorLocation()) < m_PawnSensing->SightRadius))
@@ -160,12 +159,6 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 		m_canAttack = !m_canAttack;
 	}
 
-	void ABaseAICharacter::SwitchCanSee()
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Switch the SeePawn to:%s"), m_seePawn ? TEXT("false") : TEXT("true"));
-
-		m_seePawn = !m_seePawn;
-	}
 
 	void ABaseAICharacter::SwitchPatrolling()
 	{
