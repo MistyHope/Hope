@@ -51,10 +51,7 @@ EPathFollowingRequestResult::Type ABaseAIController::SetVisibleTarget(APawn* InP
 	return result;
 }
 
-void ABaseAIController::StopTheMovement()
-{
-	StopMovement();
-}
+
 
 EPathFollowingRequestResult::Type ABaseAIController::Patrol(uint8 index)
 {

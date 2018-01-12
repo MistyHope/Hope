@@ -26,7 +26,6 @@ AHideSpots::AHideSpots()
 void AHideSpots::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -38,22 +37,23 @@ void AHideSpots::Tick(float DeltaTime)
 
 void AHideSpots::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
+	AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
+	if (Character)
 	{
 		AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
 		Character->m_isVisible = false;
+		UE_LOG(LogTemp, Warning, TEXT("InTrigger"));
 	}
 }
 
 void AHideSpots::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor)
+
+	AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
+	if (Character)
 	{
-		if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
-		{
-			AMisted_HopeCharacter* Character = Cast<AMisted_HopeCharacter>(OtherActor);
-			Character->m_isVisible = true;
-		}
+		Character->m_isVisible = true;
+		UE_LOG(LogTemp, Warning, TEXT("Not in Trigger Anymore"));
 	}
 }
 

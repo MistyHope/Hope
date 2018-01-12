@@ -23,8 +23,6 @@ public:
  
 	UFUNCTION()
 		void SetGroundOffset(float value); 
-	UFUNCTION()
-		void StopTheMovement();
 
 	UPROPERTY(EditAnywhere, Category = Attacking)
 		float m_maxAttackRange; 
