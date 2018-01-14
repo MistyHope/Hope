@@ -42,9 +42,9 @@ void ACollectables::Tick(float DeltaTime)
 
 void ACollectables::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->GetClass() == GetWorld()->GetFirstPlayerController()->GetClass())
+	AMisted_HopeCharacter* character = Cast<AMisted_HopeCharacter>(OtherActor);
+	if (character)
 	{
-		AMisted_HopeCharacter* character = Cast<AMisted_HopeCharacter>(OtherActor);
 		character->Collect(m_CurrentCollectable);
 	}
 }

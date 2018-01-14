@@ -41,8 +41,12 @@ protected:
 public: 
 	UPROPERTY(EditAnywhere, Category = Movement)
 		float m_InAirMovementpower; 
-	UPROPERTY(EditAnywhere, Category = Character)
+	UPROPERTY(BlueprintReadOnly)
 		float m_PlayerHope;
+	UPROPERTY(BlueprintReadOnly)
+		bool m_getSpecialHerb; 
+	UPROPERTY(EditAnywhere, Category = Character)
+		float m_MaxPlayerHope; 
 	UPROPERTY(EditAnywhere, Category = Movement)
 		bool m_bIsRunning;	
 	UPROPERTY(Category=Movement, EditAnywhere)
@@ -53,13 +57,16 @@ public:
 		float m_NormalHerbValue; 
 	UPROPERTY(EditAnywhere, Category = Character)
 		float m_SpecialHerbValue; 
+	UFUNCTION(BlueprintCallable)
+		float GetPlayerHope(); 
 	bool m_bIsPushing; 
 	bool m_bInteract; 
 	bool m_bLookRight; 
-	UPROPERTY(EditAnywhere, Category = CharacterBasics)
+	UPROPERTY(EditAnywhere,  Category = CharacterBasics)
 		float m_CharacterHeight;
 	UPROPERTY(EditAnywhere, Category = CharacterBasics)
 		float m_CharacterWidth; 
+
 	class AActor* m_NearActor; 
 
 	bool m_bNearBox; 

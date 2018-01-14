@@ -91,7 +91,7 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 						if (m_canAttack)
 						{
 							Attack();
-							baseController->StopTheMovement();
+							baseController->StopMovement();
 							m_canAttack = false;
 							GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanAttack, m_attackCD);
 						}

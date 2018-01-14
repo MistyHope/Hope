@@ -13,7 +13,7 @@
 #include <Runtime/Engine/Classes/Engine/Engine.h>
 #include "Runtime/Engine/Public/DrawDebugHelpers.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
-
+#include "Components/Widget.h"
 #include "PushableBox.h"
 #include "Collectables.h"
 
@@ -27,15 +27,17 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	: m_bIsRunning(false)
 	, m_bIsPushing(false)
 	, m_bLookRight(false)
-	,m_CharacterHeight(60)
-	,m_CharacterWidth(30)
-	,m_LastGroundedPos(0,0,0)
+	, m_CharacterHeight(60)
+	, m_CharacterWidth(30)
+	, m_LastGroundedPos(0, 0, 0)
 	, m_bGrounded(false)
 	, m_InAirMovementpower(1.23)
-	,m_PlayerHope(100)
-	,m_NormalHerbValue(5)
-	,m_SpecialHerbValue(5)
-	,m_isVisible(true)
+	, m_PlayerHope(.70f)
+	, m_NormalHerbValue(5)
+	, m_SpecialHerbValue(5)
+	, m_isVisible(true)
+	, m_MaxPlayerHope(100)
+	, m_getSpecialHerb(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -68,7 +70,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	SideViewCameraComponent->bUsePawnControlRotation = false;
 	SideViewCameraComponent->bAutoActivate = true;
 	GetCharacterMovement()->bOrientRotationToMovement = false;
-	GetCharacterMovement()->GetNavAgentProperties()->bCanCrouch = true; 
+	GetCharacterMovement()->GetNavAgentProperties()->bCanCrouch = true;
 
 	// Lock character motion onto the XZ plane, so the character can't move in or out of the screen
 	GetCharacterMovement()->bConstrainToPlane = true;
@@ -78,8 +80,6 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	// Note: This can cause a little floating when going up inclines; you can choose the tradeoff between better
 	// behavior on the edge of a ledge versus inclines by setting this to true or false
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
-
-
 
 }
 
@@ -115,7 +115,7 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("PushObjects", IE_Pressed, this, &AMisted_HopeCharacter::PushObjects);
 	PlayerInputComponent->BindAction("PushObjects", IE_Released, this, &AMisted_HopeCharacter::UnPushObjects);
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AMisted_HopeCharacter::Interaction);
-	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMisted_HopeCharacter::ToggleCrouch); 
+	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMisted_HopeCharacter::ToggleCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMisted_HopeCharacter::ToggleCrouch);
 
 }
@@ -126,25 +126,25 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 	if (Value > 0)
 		m_bLookRight = true;
 	else
-		m_bLookRight = false; 
-	
+		m_bLookRight = false;
+
 	FHitResult RV_Hit(ForceInit);
 	bool hitResult;
 	if (m_bLookRight)
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(30,0,0), ECC_WorldStatic);
+		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(30, 0, 0), ECC_WorldStatic);
 	else
 		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
 
 	if (GetCharacterMovement()->IsFalling())
-		LaunchCharacter(FVector(m_InAirMovementpower*Value, 0, 0), false, false); 
+		LaunchCharacter(FVector(m_InAirMovementpower*Value, 0, 0), false, false);
 
 	if (!hitResult && !m_bIsPushing)
 	{
-		AddMovementInput(FVector(1,0,0), Value);
+		AddMovementInput(FVector(1, 0, 0), Value);
 	}
 	else if (m_bIsPushing)
 	{
-		AddMovementInput(FVector(.2,0,0), Value);
+		AddMovementInput(FVector(.2, 0, 0), Value);
 
 		UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
 
@@ -152,7 +152,7 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 		nearActorPrim->SetSimulatePhysics(true);
 		if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, m_NearActor->GetActorLocation(), m_NearActor->GetActorLocation() + FVector(50 * Value, 0, 0), ECC_WorldStatic))
 			m_NearActor->SetActorLocation(FVector(GetActorLocation().X + m_distToBox, m_NearActor->GetActorLocation().Y, m_NearActor->GetActorLocation().Z));
-	}		
+	}
 
 }
 
@@ -161,9 +161,14 @@ void AMisted_HopeCharacter::TrampolineJump(float jumpMultiplicator)
 	this->LaunchCharacter(FVector(0, 0, jumpMultiplicator), false, true);
 }
 
+float AMisted_HopeCharacter::GetPlayerHope()
+{
+	return m_PlayerHope;
+}
+
 void AMisted_HopeCharacter::ToggleCrouch()
 {
-	if (CanCrouch())
+	if (CanCrouch() && !m_bIsPushing)
 	{
 		Crouch();
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchedEyeHeight);
@@ -204,7 +209,7 @@ void AMisted_HopeCharacter::PushObjects()
 
 void AMisted_HopeCharacter::UnPushObjects()
 {
-	if(m_bIsPushing)
+	if (m_bIsPushing)
 		m_bIsPushing = false;
 }
 
@@ -213,10 +218,11 @@ void AMisted_HopeCharacter::Collect(ECollectables collectable)
 	switch (collectable)
 	{
 	case NormalHerb:
-		m_PlayerHope += m_NormalHerbValue; 
+		m_PlayerHope += m_NormalHerbValue / 100;
 		break;
 	case SpecialHerb:
-		m_PlayerHope += m_SpecialHerbValue; 
+		m_getSpecialHerb = true;
+		m_PlayerHope += m_SpecialHerbValue / 100;
 		break;
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%f"), m_PlayerHope);
@@ -225,13 +231,13 @@ void AMisted_HopeCharacter::Collect(ECollectables collectable)
 
 void AMisted_HopeCharacter::Hurt(float Value)
 {
-	m_PlayerHope -= Value; 
+	m_PlayerHope -= Value;
 	UE_LOG(LogTemp, Warning, TEXT("%f"), m_PlayerHope);
 }
 
 void AMisted_HopeCharacter::PushBack(FVector vec)
 {
-	this->LaunchCharacter(vec,true, false);
+	this->LaunchCharacter(vec, true, false);
 }
 
 
@@ -239,10 +245,10 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 {
 	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
 	{
-		m_bNearBox = true; 
-		m_NearActor = OtherActor; 
+		m_bNearBox = true;
+		m_NearActor = OtherActor;
 	}
-	
+
 }
 
 void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -259,7 +265,6 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 
 void AMisted_HopeCharacter::UpdateCharacter()
 {
-
 
 	// Set the rotation so that the character faces his direction of travel.
 	// Update animation to match the motion
