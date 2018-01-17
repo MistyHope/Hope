@@ -28,7 +28,7 @@ public:
 		class USceneComponent* m_RootComponent; 
 	
 	UPROPERTY(EditAnywhere, Category = Bridge)
-		TArray<UStaticMesh*> m_BridgePieces; 
+		TArray<TSubclassOf<class ABridgePiece>> m_BridgePieces; 
 	UPROPERTY(EditAnywhere, Category = Trigger)
 		class UBoxComponent* m_TriggerBox; 
 

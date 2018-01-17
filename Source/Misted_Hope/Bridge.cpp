@@ -3,6 +3,7 @@
 #include "Bridge.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
+#include "BridgePiece.h"
 
 // Sets default values
 ABridge::ABridge()
@@ -13,11 +14,6 @@ ABridge::ABridge()
 	m_RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("Root")); 
 	RootComponent = m_RootComponent; 
 
-	for (int i = 0; i < m_BridgePieces.Num(); i++)
-	{
-		m_BridgePieces[i] = CreateDefaultSubobject<UStaticMesh>(TEXT("Piece")); 
-	}
-
 
 	m_TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox")); 
 	m_TriggerBox->SetupAttachment(RootComponent); 
@@ -27,7 +23,10 @@ ABridge::ABridge()
 void ABridge::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	for (int i = 0; i < m_BridgePieces.Num(); i++)
+	{
+		GetWorld()->SpawnActor<ABridgePiece>(m_BridgePieces[i], GetActorLocation(), FRotator::ZeroRotator);
+	}
 
 }
 
