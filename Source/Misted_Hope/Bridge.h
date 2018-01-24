@@ -26,9 +26,9 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Bridge)
 		class USceneComponent* m_RootComponent; 
-	
-	UPROPERTY(EditAnywhere, Category = Bridge)
-		TArray<TSubclassOf<class ABridgePiece>> m_BridgePieces; 
+	UPROPERTY(EditAnywhere, Category = BridgePiece)
+		class AActor* m_BridgePieceHolder; 
+
 	UPROPERTY(EditAnywhere, Category = Trigger)
 		class UBoxComponent* m_TriggerBox; 
 

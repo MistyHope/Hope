@@ -3,7 +3,7 @@
 #include "Bridge.h"
 #include "Components/SphereComponent.h"
 #include "Components/BoxComponent.h"
-#include "BridgePiece.h"
+#include "BridgePieceHolder.h"
 
 // Sets default values
 ABridge::ABridge()
@@ -17,16 +17,16 @@ ABridge::ABridge()
 
 	m_TriggerBox = CreateDefaultSubobject<UBoxComponent>(TEXT("TriggerBox")); 
 	m_TriggerBox->SetupAttachment(RootComponent); 
+
+	m_BridgePieceHolder = CreateDefaultSubobject<AActor>(TEXT("BridgePieceHolderInstance")); 
+	
 }
 
 // Called when the game starts or when spawned
 void ABridge::BeginPlay()
 {
 	Super::BeginPlay();
-	for (int i = 0; i < m_BridgePieces.Num(); i++)
-	{
-		GetWorld()->SpawnActor<ABridgePiece>(m_BridgePieces[i], GetActorLocation(), FRotator::ZeroRotator);
-	}
+
 
 }
 
