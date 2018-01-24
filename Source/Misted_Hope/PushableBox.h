@@ -26,8 +26,8 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UPROPERTY(EditAnywhere, Category = Object)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite,  Category = Object)
 		class UStaticMeshComponent* m_Mesh;
-	UPROPERTY(EditAnywhere, Category = Object)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Object)
 		class UShapeComponent* m_TriggerBox; 
 };
