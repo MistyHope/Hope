@@ -32,6 +32,14 @@ public:
 		class UShapeComponent* m_Trigger; 
 	UPROPERTY(EditAnywhere, Category = Collectable)
 		TEnumAsByte<ECollectables> m_CurrentCollectable;
+	UPROPERTY(EditAnywhere, Category = Effect)
+		double m_HoverHeight; 
+	UPROPERTY(EditAnywhere, Category = Effect)
+		float m_HoverSpeed;
+	UPROPERTY()
+		FVector m_StartPosition;
+	UPROPERTY()
+		bool m_ReachedTop; 
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()

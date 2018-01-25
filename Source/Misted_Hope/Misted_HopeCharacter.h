@@ -66,6 +66,11 @@ public:
 		float m_CharacterHeight;
 	UPROPERTY(EditAnywhere, Category = CharacterBasics)
 		float m_CharacterWidth; 
+	UPROPERTY(BlueprintReadWrite, Category = UI)
+		bool m_IsPaused;
+
+	UPROPERTY()
+		float m_cameraBoomY;
 
 	class AActor* m_NearActor; 
 
@@ -112,6 +117,8 @@ public:
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION()
+		void Pause(); 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface

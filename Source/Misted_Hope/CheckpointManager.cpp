@@ -30,3 +30,8 @@ void ACheckpointManager::SetCheckpoint(const FVector& vec)
 {
 	m_currentCheckpointPos = vec; 
 }
+
+void ACheckpointManager::SetCharacterToCP()
+{
+	GetWorld()->GetFirstPlayerController()->GetPawn()->SetActorLocation(m_currentCheckpointPos);
+}

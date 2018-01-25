@@ -38,6 +38,8 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_isVisible(true)
 	, m_MaxPlayerHope(100)
 	, m_getSpecialHerb(false)
+	, m_IsPaused(false)
+	,m_cameraBoomY(0)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -83,21 +85,15 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 
 }
 
-//////////////////////////////////////////////////////////////////////////
-// Animation
-
-void AMisted_HopeCharacter::UpdateAnimation()
-{
-	const FVector PlayerVelocity = GetVelocity();
-	const float PlayerSpeedSqr = PlayerVelocity.SizeSquared();
-
-
-}
-
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (!m_IsPaused)
+		Cast<APlayerController>(GetController())->bShowMouseCursor = false; 
 	UpdateCharacter();
+	if (m_cameraBoomY == 0)
+		m_cameraBoomY = CameraBoom->GetComponentLocation().Y;
+
 }
 
 
@@ -109,6 +105,7 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+	PlayerInputComponent->BindAction("Pause",IE_Pressed, this, &AMisted_HopeCharacter::Pause);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMisted_HopeCharacter::MoveRight);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMisted_HopeCharacter::Run);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMisted_HopeCharacter::UnRun);
@@ -122,7 +119,7 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 void AMisted_HopeCharacter::MoveRight(float Value)
 {
-
+	CameraBoom->SetWorldLocation(FVector(CameraBoom->GetComponentLocation().X, m_cameraBoomY, CameraBoom->GetComponentLocation().Z));
 	if (Value > 0)
 		m_bLookRight = true;
 	else
@@ -168,12 +165,13 @@ float AMisted_HopeCharacter::GetPlayerHope()
 
 void AMisted_HopeCharacter::ToggleCrouch()
 {
+	FHitResult RV_Hit(ForceInit);
 	if (CanCrouch() && !m_bIsPushing)
 	{
 		Crouch();
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchedEyeHeight);
 	}
-	else
+	else if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 15, 0), ECC_WorldStatic))
 	{
 		UnCrouch();
 		GetCapsuleComponent()->SetCapsuleHalfHeight(m_CharacterHeight);
@@ -183,13 +181,11 @@ void AMisted_HopeCharacter::ToggleCrouch()
 
 void AMisted_HopeCharacter::Run()
 {
-	//TODO: Add Animation 
 	m_bIsRunning = true;
 }
 
 void AMisted_HopeCharacter::UnRun()
 {
-	//TODO: Add Animation 
 	m_bIsRunning = false;
 }
 
@@ -212,6 +208,19 @@ void AMisted_HopeCharacter::UnPushObjects()
 	if (m_bIsPushing)
 		m_bIsPushing = false;
 }
+
+void AMisted_HopeCharacter::Pause()
+{
+	APlayerController* controller = Cast<APlayerController>(GetController());
+	if (controller)
+	{
+		controller->bShowMouseCursor = true;
+		if (controller->SetPause(true))
+			m_IsPaused = true;
+	}
+}
+
+
 
 void AMisted_HopeCharacter::Collect(ECollectables collectable)
 {
@@ -266,9 +275,6 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 void AMisted_HopeCharacter::UpdateCharacter()
 {
 
-	// Set the rotation so that the character faces his direction of travel.
-	// Update animation to match the motion
-	UpdateAnimation();
 
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();

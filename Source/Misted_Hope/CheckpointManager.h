@@ -27,5 +27,7 @@ public:
 	
 	UFUNCTION()
 		void SetCheckpoint(const FVector& vec); 
+	UFUNCTION()
+		void SetCharacterToCP();
 	
 };
