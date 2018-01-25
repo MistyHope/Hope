@@ -3,9 +3,13 @@
 #include "Collectables.h"
 #include "Components/BoxComponent.h"
 #include "Misted_HopeCharacter.h"
+#include "Kismet/KismetMathLibrary.h"
 
 // Sets default values
 ACollectables::ACollectables()
+	:m_HoverHeight(5)
+	,m_ReachedTop(false)
+	,m_HoverSpeed(1)
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -28,16 +32,25 @@ ACollectables::ACollectables()
 void ACollectables::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	m_StartPosition = GetActorLocation();
 }
 
 // Called every frame
 void ACollectables::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-
-
+	if (!m_ReachedTop)
+	{
+		SetActorLocation(UKismetMathLibrary::VInterpTo(GetActorLocation(), m_StartPosition + FVector(0, 0, m_HoverHeight), DeltaTime, m_HoverSpeed));
+		if (FVector::Dist(GetActorLocation(), m_StartPosition + FVector(0, 0, m_HoverHeight)) < 1)
+			m_ReachedTop = true;
+	}
+	else
+	{
+		SetActorLocation(UKismetMathLibrary::VInterpTo(GetActorLocation(), m_StartPosition, DeltaTime, m_HoverSpeed));
+		if (FVector::Dist(GetActorLocation(), m_StartPosition) < 1)
+			m_ReachedTop = false;
+	}
 }
 
 void ACollectables::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -46,9 +59,10 @@ void ACollectables::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* 
 	if (character)
 	{
 		character->Collect(m_CurrentCollectable);
+		this->Destroy();
 	}
 }
 void ACollectables::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	this->Destroy();
+
 }
