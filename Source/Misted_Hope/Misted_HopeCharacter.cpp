@@ -38,7 +38,6 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_isVisible(true)
 	, m_MaxPlayerHope(100)
 	, m_getSpecialHerb(false)
-	, m_IsPaused(false)
 	,m_cameraBoomY(0)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
@@ -88,8 +87,8 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (!m_IsPaused)
-		Cast<APlayerController>(GetController())->bShowMouseCursor = false; 
+	//if (!m_IsPaused)
+	//	Cast<APlayerController>(GetController())->bShowMouseCursor = false; 
 	UpdateCharacter();
 	if (m_cameraBoomY == 0)
 		m_cameraBoomY = CameraBoom->GetComponentLocation().Y;
@@ -102,10 +101,10 @@ void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 
 void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
+
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
-	PlayerInputComponent->BindAction("Pause",IE_Pressed, this, &AMisted_HopeCharacter::Pause);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMisted_HopeCharacter::MoveRight);
 	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMisted_HopeCharacter::Run);
 	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMisted_HopeCharacter::UnRun);
@@ -131,9 +130,6 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(30, 0, 0), ECC_WorldStatic);
 	else
 		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
-
-	if (GetCharacterMovement()->IsFalling())
-		LaunchCharacter(FVector(m_InAirMovementpower*Value, 0, 0), false, false);
 
 	if (!hitResult && !m_bIsPushing)
 	{
@@ -209,17 +205,6 @@ void AMisted_HopeCharacter::UnPushObjects()
 		m_bIsPushing = false;
 }
 
-void AMisted_HopeCharacter::Pause()
-{
-	APlayerController* controller = Cast<APlayerController>(GetController());
-	if (controller)
-	{
-		controller->bShowMouseCursor = true;
-		if (controller->SetPause(true))
-			m_IsPaused = true;
-	}
-}
-
 
 
 void AMisted_HopeCharacter::Collect(ECollectables collectable)
@@ -276,7 +261,7 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 void AMisted_HopeCharacter::UpdateCharacter()
 {
 
-
+	
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();
 	float TravelDirection = PlayerVelocity.X;
