@@ -16,6 +16,7 @@
 #include "Components/Widget.h"
 #include "PushableBox.h"
 #include "Collectables.h"
+#include "CompleteDoor.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
@@ -24,21 +25,23 @@ DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
 // AMisted_HopeCharacter
 
 AMisted_HopeCharacter::AMisted_HopeCharacter()
-	: m_bIsRunning(false)
-	, m_bIsPushing(false)
+	: m_bIsPushing(false)
 	, m_bLookRight(false)
 	, m_CharacterHeight(60)
 	, m_CharacterWidth(30)
 	, m_LastGroundedPos(0, 0, 0)
 	, m_bGrounded(false)
 	, m_InAirMovementpower(1.23)
-	, m_PlayerHope(.70f)
+	, m_PlayerHope(3)
 	, m_NormalHerbValue(5)
 	, m_SpecialHerbValue(5)
 	, m_isVisible(true)
 	, m_MaxPlayerHope(100)
 	, m_getSpecialHerb(false)
 	,m_cameraBoomY(0)
+	,m_hasKey(false)
+	,m_nearDoor(false)
+	,m_cameraXOffset(50)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -87,12 +90,17 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	//if (!m_IsPaused)
-	//	Cast<APlayerController>(GetController())->bShowMouseCursor = false; 
+
 	UpdateCharacter();
 	if (m_cameraBoomY == 0)
 		m_cameraBoomY = CameraBoom->GetComponentLocation().Y;
+	else
+		CameraBoom->SetWorldLocation(FVector(CameraBoom->GetComponentLocation().X, m_cameraBoomY, CameraBoom->GetComponentLocation().Z));
 
+	if (m_bLookRight)
+		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, m_cameraXOffset,13), DeltaSeconds, 1);
+	else
+		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, -m_cameraXOffset,13 ), DeltaSeconds, 1);
 }
 
 
@@ -106,8 +114,6 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMisted_HopeCharacter::MoveRight);
-	PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AMisted_HopeCharacter::Run);
-	PlayerInputComponent->BindAction("Run", IE_Released, this, &AMisted_HopeCharacter::UnRun);
 	PlayerInputComponent->BindAction("PushObjects", IE_Pressed, this, &AMisted_HopeCharacter::PushObjects);
 	PlayerInputComponent->BindAction("PushObjects", IE_Released, this, &AMisted_HopeCharacter::UnPushObjects);
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AMisted_HopeCharacter::Interaction);
@@ -118,11 +124,13 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 
 void AMisted_HopeCharacter::MoveRight(float Value)
 {
-	CameraBoom->SetWorldLocation(FVector(CameraBoom->GetComponentLocation().X, m_cameraBoomY, CameraBoom->GetComponentLocation().Z));
 	if (Value > 0)
 		m_bLookRight = true;
 	else
 		m_bLookRight = false;
+
+
+
 
 	FHitResult RV_Hit(ForceInit);
 	bool hitResult;
@@ -175,19 +183,10 @@ void AMisted_HopeCharacter::ToggleCrouch()
 }
 
 
-void AMisted_HopeCharacter::Run()
-{
-	m_bIsRunning = true;
-}
-
-void AMisted_HopeCharacter::UnRun()
-{
-	m_bIsRunning = false;
-}
-
 void AMisted_HopeCharacter::Interaction()
 {
-	m_bInteract = true;
+	if (m_nearDoor && m_getSpecialHerb)
+		m_NearDoor->m_isOpen = true;
 }
 
 void AMisted_HopeCharacter::PushObjects()
@@ -238,17 +237,24 @@ void AMisted_HopeCharacter::PushBack(FVector vec)
 void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	APushableBox* box = Cast<APushableBox>(OtherActor);
+	ACompleteDoor* door = Cast<ACompleteDoor>(OtherActor);
 	if (box)
 	{
 		m_bNearBox = true;
 		m_NearActor = OtherActor;
 	}
-
+	if (door)
+	{
+		m_NearDoor = door; 
+		m_nearDoor = true; 
+	}
 }
 
 void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (OtherActor->GetClass()->GetFName() == TEXT("PushableBox"))
+	APushableBox* box = Cast<APushableBox>(OtherActor);
+	ACompleteDoor* door = Cast<ACompleteDoor>(OtherActor);
+	if (box)
 	{
 		UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
 		nearActorPrim->SetSimulatePhysics(false);
@@ -256,11 +262,16 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 		m_NearActor = nullptr;
 		m_bIsPushing = false;
 	}
+	if (door)
+	{
+		m_nearDoor = false;
+		m_NearDoor = nullptr;
+
+	}
 }
 
 void AMisted_HopeCharacter::UpdateCharacter()
 {
-
 	
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();

@@ -47,12 +47,6 @@ public:
 		bool m_getSpecialHerb; 
 	UPROPERTY(EditAnywhere, Category = Character)
 		float m_MaxPlayerHope; 
-	UPROPERTY(EditAnywhere, Category = Movement)
-		bool m_bIsRunning;	
-	UPROPERTY(Category=Movement, EditAnywhere)
-		float m_fRunMultiplier;
-	UPROPERTY(EditAnywhere, Category = Movement)
-		float m_fMaxSpeed; 
 	UPROPERTY(EditAnywhere, Category = Character)
 		float m_NormalHerbValue; 
 	UPROPERTY(EditAnywhere, Category = Character)
@@ -60,16 +54,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 		float GetPlayerHope(); 
 	bool m_bIsPushing; 
-	bool m_bInteract; 
 	bool m_bLookRight; 
+	UPROPERTY()
+		bool m_nearDoor; 
 	UPROPERTY(EditAnywhere,  Category = CharacterBasics)
 		float m_CharacterHeight;
 	UPROPERTY(EditAnywhere, Category = CharacterBasics)
 		float m_CharacterWidth; 
-
+	UPROPERTY()
+		bool m_hasKey; 
 	UPROPERTY()
 		float m_cameraBoomY;
-
+	UPROPERTY(EditAnywhere, Category = Camera)
+		float m_cameraXOffset; 
+	class ACompleteDoor* m_NearDoor; 
 	class AActor* m_NearActor; 
 
 	bool m_bNearBox; 
@@ -88,11 +86,7 @@ public:
 	/** Called for side to side input */
 	void MoveRight(float Value);
 
-	void ToggleCrouch();
-
-	void Run(); 
-
-	void UnRun();			
+	void ToggleCrouch();		
 
 	void Interaction(); 
 
