@@ -27,6 +27,8 @@ public:
 		class USceneComponent* m_RootComponent; 
 	UPROPERTY(EditAnywhere, Category = Door)
 		class UStaticMeshComponent* m_Mesh; 
+	UPROPERTY(EditAnywhere, Category = Door)
+		class UBoxComponent* m_BoxCollider; 
 
 	UFUNCTION()
 		void OpenDoor(float DeltaSeconds, FRotator StartRotation, float angle, float interpSpeed);

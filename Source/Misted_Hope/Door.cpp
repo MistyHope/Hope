@@ -6,6 +6,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 
+
 // Sets default values
 ADoor::ADoor()
 {
@@ -18,6 +19,8 @@ ADoor::ADoor()
 	m_Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh")); 
 	m_Mesh->SetupAttachment(m_RootComponent); 
 
+	m_BoxCollider = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider")); 
+	m_BoxCollider->SetupAttachment(m_RootComponent); 
 
 }
 
@@ -36,5 +39,5 @@ void ADoor::Tick(float DeltaTime)
 
 void ADoor::OpenDoor(float DeltaSeconds, FRotator StartRotation, float angle, float interpSpeed)
 {
-	SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), StartRotation + FRotator(angle, 0, 0), DeltaSeconds, interpSpeed));
+	SetActorRotation(UKismetMathLibrary::RInterpTo(GetActorRotation(), StartRotation + FRotator(0, angle, 0), DeltaSeconds, interpSpeed));
 }
