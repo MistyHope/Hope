@@ -23,7 +23,9 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	class AMisted_HopeCharacter* m_Char; 
 	FVector m_currentCheckpointPos; 
+	int m_currentPlayerHope; 
 	
 	UFUNCTION()
 		void SetCheckpoint(const FVector& vec); 

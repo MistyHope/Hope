@@ -67,6 +67,10 @@ public:
 		float m_cameraBoomY;
 	UPROPERTY(EditAnywhere, Category = Camera)
 		float m_cameraXOffset; 
+	UPROPERTY(EditAnywhere, Category = Character)
+		class ACheckpointManager* m_CPManager; 
+	UPROPERTY(BlueprintReadOnly)
+		bool m_isDead;
 	class ACompleteDoor* m_NearDoor; 
 	class AActor* m_NearActor; 
 
@@ -107,6 +111,13 @@ public:
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	UFUNCTION()
+		void SetPlayerHope(int hope) { m_PlayerHope = hope; }
+	UFUNCTION()
+		void ResetPlayerAfterDead();
+	UFUNCTION(BlueprintCallable) 
+		bool GetStatus() { return m_isDead; }
+
 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;

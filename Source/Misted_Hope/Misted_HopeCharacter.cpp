@@ -17,6 +17,7 @@
 #include "PushableBox.h"
 #include "Collectables.h"
 #include "CompleteDoor.h"
+#include "CheckpointManager.h"
 
 
 DEFINE_LOG_CATEGORY_STATIC(SideScrollerCharacter, Log, All);
@@ -42,6 +43,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	,m_hasKey(false)
 	,m_nearDoor(false)
 	,m_cameraXOffset(50)
+	,m_isDead(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -85,6 +87,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	// behavior on the edge of a ledge versus inclines by setting this to true or false
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
 
+	m_CPManager = CreateDefaultSubobject<ACheckpointManager>(TEXT("CPManager")); 
 }
 
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
@@ -119,42 +122,44 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AMisted_HopeCharacter::Interaction);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMisted_HopeCharacter::ToggleCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMisted_HopeCharacter::ToggleCrouch);
-
+	PlayerInputComponent->BindAction("Respawn", IE_Pressed, this, &AMisted_HopeCharacter::ResetPlayerAfterDead);
 }
 
 void AMisted_HopeCharacter::MoveRight(float Value)
 {
-	if (Value > 0)
-		m_bLookRight = true;
-	else
-		m_bLookRight = false;
-
-
-
-
-	FHitResult RV_Hit(ForceInit);
-	bool hitResult;
-	if (m_bLookRight)
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(30, 0, 0), ECC_WorldStatic);
-	else
-		hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
-
-	if (!hitResult && !m_bIsPushing)
+	if (!m_isDead)
 	{
-		AddMovementInput(FVector(1, 0, 0), Value);
+		if (Value > 0)
+			m_bLookRight = true;
+		else
+			m_bLookRight = false;
+
+
+
+
+		FHitResult RV_Hit(ForceInit);
+		bool hitResult;
+		if (m_bLookRight)
+			hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(30, 0, 0), ECC_WorldStatic);
+		else
+			hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() - FVector(30, 0, 0), ECC_WorldStatic);
+
+		if (!hitResult && !m_bIsPushing)
+		{
+			AddMovementInput(FVector(1, 0, 0), Value);
+		}
+		else if (m_bIsPushing)
+		{
+			AddMovementInput(FVector(.2, 0, 0), Value);
+
+			UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
+
+			nearActorPrim->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+			nearActorPrim->SetSimulatePhysics(true);
+			if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, m_NearActor->GetActorLocation(), m_NearActor->GetActorLocation() + FVector(50 * Value, 0, 0), ECC_WorldStatic))
+				m_NearActor->SetActorLocation(FVector(GetActorLocation().X + m_distToBox, m_NearActor->GetActorLocation().Y, m_NearActor->GetActorLocation().Z));
+		}
 	}
-	else if (m_bIsPushing)
-	{
-		AddMovementInput(FVector(.2, 0, 0), Value);
-
-		UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
-
-		nearActorPrim->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-		nearActorPrim->SetSimulatePhysics(true);
-		if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, m_NearActor->GetActorLocation(), m_NearActor->GetActorLocation() + FVector(50 * Value, 0, 0), ECC_WorldStatic))
-			m_NearActor->SetActorLocation(FVector(GetActorLocation().X + m_distToBox, m_NearActor->GetActorLocation().Y, m_NearActor->GetActorLocation().Z));
-	}
-
 }
 
 void AMisted_HopeCharacter::TrampolineJump(float jumpMultiplicator)
@@ -227,8 +232,11 @@ void AMisted_HopeCharacter::Collect(ECollectables collectable)
 void AMisted_HopeCharacter::Hurt(float Value)
 {
 	m_PlayerHope -= Value;
+	if (m_PlayerHope <= 0)
+		m_isDead = true; 
 	UE_LOG(LogTemp, Warning, TEXT("%i"), m_PlayerHope);
 }
+
 
 void AMisted_HopeCharacter::PushBack(FVector vec)
 {
@@ -272,9 +280,15 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
+void AMisted_HopeCharacter::ResetPlayerAfterDead()
+{
+	m_isDead = false; 
+	m_CPManager->SetCharacterToCP();
+}
+
 void AMisted_HopeCharacter::UpdateCharacter()
 {
-	
+
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();
 	float TravelDirection = PlayerVelocity.X;
