@@ -13,8 +13,6 @@
 
 ABaseAIController::ABaseAIController()
 	: m_groundOffset(0)
-	, m_TargetKey("Target")
-	, m_LocationToGoKey("LocationToGo")
 	, m_maxAttackRange(80)
 {
 

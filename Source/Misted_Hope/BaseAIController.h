@@ -35,10 +35,7 @@ public:
 		float m_groundOffset; 
 	UPROPERTY(EditAnywhere, Category = AI)
 		TArray<AActor*> m_AITargetPoints; 
-	UPROPERTY(EditDefaultsOnly, Category = AI)
-		FName m_LocationToGoKey;
-	UPROPERTY(EditDefaultsOnly, Category = AI)
-		FName m_TargetKey; 
+
 
 
 	UFUNCTION()
