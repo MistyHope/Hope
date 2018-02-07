@@ -41,8 +41,8 @@ protected:
 public: 
 	UPROPERTY(EditAnywhere, Category = Movement)
 		float m_InAirMovementpower; 
-	UPROPERTY(BlueprintReadOnly)
-		float m_PlayerHope;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Character)
+		int m_PlayerHope;
 	UPROPERTY(BlueprintReadOnly)
 		bool m_getSpecialHerb; 
 	UPROPERTY(EditAnywhere, Category = Character)

@@ -36,7 +36,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_NormalHerbValue(5)
 	, m_SpecialHerbValue(5)
 	, m_isVisible(true)
-	, m_MaxPlayerHope(100)
+	, m_MaxPlayerHope(3)
 	, m_getSpecialHerb(false)
 	,m_cameraBoomY(0)
 	,m_hasKey(false)
@@ -211,21 +211,23 @@ void AMisted_HopeCharacter::Collect(ECollectables collectable)
 	switch (collectable)
 	{
 	case NormalHerb:
-		m_PlayerHope += m_NormalHerbValue / 100;
+		if(m_PlayerHope<m_MaxPlayerHope)
+			m_PlayerHope += m_NormalHerbValue;
 		break;
 	case SpecialHerb:
 		m_getSpecialHerb = true;
-		m_PlayerHope += m_SpecialHerbValue / 100;
+		if (m_PlayerHope<m_MaxPlayerHope)
+			m_PlayerHope += m_SpecialHerbValue ;
 		break;
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%f"), m_PlayerHope);
+	UE_LOG(LogTemp, Warning, TEXT("%i"), m_PlayerHope);
 
 }
 
 void AMisted_HopeCharacter::Hurt(float Value)
 {
 	m_PlayerHope -= Value;
-	UE_LOG(LogTemp, Warning, TEXT("%f"), m_PlayerHope);
+	UE_LOG(LogTemp, Warning, TEXT("%i"), m_PlayerHope);
 }
 
 void AMisted_HopeCharacter::PushBack(FVector vec)
