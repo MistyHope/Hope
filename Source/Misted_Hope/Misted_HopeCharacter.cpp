@@ -39,11 +39,12 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_isVisible(true)
 	, m_MaxPlayerHope(3)
 	, m_getSpecialHerb(false)
-	,m_cameraBoomY(0)
-	,m_hasKey(false)
-	,m_nearDoor(false)
-	,m_cameraXOffset(50)
-	,m_isDead(false)
+	, m_cameraBoomY(0)
+	, m_hasKey(false)
+	, m_nearDoor(false)
+	, m_cameraXOffset(50)
+	, m_isDead(false)
+	, m_gotBottle(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -87,7 +88,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	// behavior on the edge of a ledge versus inclines by setting this to true or false
 	GetCharacterMovement()->bUseFlatBaseForFloorChecks = true;
 
-	m_CPManager = CreateDefaultSubobject<ACheckpointManager>(TEXT("CPManager")); 
+	m_CPManager = CreateDefaultSubobject<ACheckpointManager>(TEXT("CPManager"));
 }
 
 void AMisted_HopeCharacter::Tick(float DeltaSeconds)
@@ -101,9 +102,9 @@ void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 		CameraBoom->SetWorldLocation(FVector(CameraBoom->GetComponentLocation().X, m_cameraBoomY, CameraBoom->GetComponentLocation().Z));
 
 	if (m_bLookRight)
-		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, m_cameraXOffset,13), DeltaSeconds, 1);
+		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, m_cameraXOffset, 13), DeltaSeconds, 1);
 	else
-		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, -m_cameraXOffset,13 ), DeltaSeconds, 1);
+		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, -m_cameraXOffset, 13), DeltaSeconds, 1);
 }
 
 
@@ -216,14 +217,18 @@ void AMisted_HopeCharacter::Collect(ECollectables collectable)
 	switch (collectable)
 	{
 	case NormalHerb:
-		if(m_PlayerHope<m_MaxPlayerHope)
+		if (m_PlayerHope < m_MaxPlayerHope)
 			m_PlayerHope += m_NormalHerbValue;
 		break;
-	case SpecialHerb:
+	case Key:
 		m_getSpecialHerb = true;
-		if (m_PlayerHope<m_MaxPlayerHope)
-			m_PlayerHope += m_SpecialHerbValue ;
+		if (m_PlayerHope < m_MaxPlayerHope)
+			m_PlayerHope += m_SpecialHerbValue;
 		break;
+	case Bottle:
+		m_gotBottle = true;
+		break;
+
 	}
 	UE_LOG(LogTemp, Warning, TEXT("%i"), m_PlayerHope);
 
@@ -233,7 +238,7 @@ void AMisted_HopeCharacter::Hurt(float Value)
 {
 	m_PlayerHope -= Value;
 	if (m_PlayerHope <= 0)
-		m_isDead = true; 
+		m_isDead = true;
 	UE_LOG(LogTemp, Warning, TEXT("%i"), m_PlayerHope);
 }
 
@@ -255,8 +260,8 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	}
 	if (door)
 	{
-		m_NearDoor = door; 
-		m_nearDoor = true; 
+		m_NearDoor = door;
+		m_nearDoor = true;
 	}
 }
 
@@ -282,7 +287,7 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 
 void AMisted_HopeCharacter::ResetPlayerAfterDead()
 {
-	m_isDead = false; 
+	m_isDead = false;
 	m_CPManager->SetCharacterToCP();
 }
 

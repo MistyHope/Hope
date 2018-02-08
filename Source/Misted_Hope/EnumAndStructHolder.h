@@ -11,7 +11,8 @@ UENUM(BlueprintType)
 enum ECollectables
 {
 	NormalHerb, 
-	SpecialHerb
+	Key,
+	Bottle
 };
 
 UENUM(BlueprintType)

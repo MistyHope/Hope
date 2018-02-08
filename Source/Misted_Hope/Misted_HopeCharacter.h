@@ -55,6 +55,8 @@ public:
 		float GetPlayerHope(); 
 	bool m_bIsPushing; 
 	bool m_bLookRight; 
+	UPROPERTY(BlueprintReadOnly)
+		bool m_gotBottle; 
 	UPROPERTY()
 		bool m_nearDoor; 
 	UPROPERTY(EditAnywhere,  Category = CharacterBasics)
