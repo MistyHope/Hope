@@ -40,11 +40,11 @@ void ACompleteDoor::BeginPlay()
 void ACompleteDoor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//if (m_isOpen)
-	//{
+	if (m_isOpen)
+	{
 		m_doorLeft->OpenDoor(DeltaTime, m_StartRotationL, m_angleL, m_interSpeedL); 
 		m_doorRight->OpenDoor(DeltaTime, m_StartRotationR, m_angleR, m_interSpeedR); 
 		m_ChainMesh->Destroy(); 
-	//}
+	}
 }
 
