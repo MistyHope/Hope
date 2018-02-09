@@ -53,7 +53,8 @@ public:
 		float m_SpecialHerbValue; 
 	UFUNCTION(BlueprintCallable)
 		float GetPlayerHope(); 
-	bool m_bIsPushing; 
+	UPROPERTY(BlueprintReadOnly)
+		bool m_bIsPushing; 
 	bool m_bLookRight; 
 	UPROPERTY(BlueprintReadOnly)
 		bool m_gotBottle; 
@@ -74,7 +75,12 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 		bool m_isDead;
 	class ACompleteDoor* m_NearDoor;  
-
+	UPROPERTY(BlueprintReadOnly)
+		float m_PushValue; 
+	UPROPERTY()
+		bool m_LeftPush; 
+	UPROPERTY()
+		bool m_RightPush; 
 	bool m_bNearBox; 
 	
 	bool m_bGrounded; 

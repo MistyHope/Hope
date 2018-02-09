@@ -45,6 +45,9 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_cameraXOffset(50)
 	, m_isDead(false)
 	, m_gotBottle(false)
+	, m_LeftPush(false)
+	, m_RightPush(false)
+	,m_PushValue(0)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -134,7 +137,10 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 		else
 			m_bLookRight = false;
 
-
+		if (m_LeftPush&& !m_RightPush)
+			m_PushValue = Value; 
+		if (m_RightPush && !m_LeftPush)
+			m_PushValue = -Value; 
 
 
 		FHitResult RV_Hit(ForceInit);
@@ -191,7 +197,7 @@ void AMisted_HopeCharacter::PushObjects()
 {
 	if (!m_bIsPushing && m_bNearBox)
 	{
-
+		m_PushValue = 0; 
 		m_bIsPushing = true;
 	}
 	else
@@ -252,6 +258,17 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	if (box)
 	{
 		m_bNearBox = true;
+		if (GetActorLocation().X < box->GetActorLocation().X)
+		{
+			m_LeftPush = true;
+			m_RightPush = false;
+		}
+		else
+		{
+			m_RightPush = true;
+			m_LeftPush = false;
+		}
+
 	}
 	if (door)
 	{
@@ -268,6 +285,7 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	{
 		m_bNearBox = false;
 		m_bIsPushing = false; 
+
 	}
 	if (door)
 	{
