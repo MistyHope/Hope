@@ -73,8 +73,7 @@ public:
 		class ACheckpointManager* m_CPManager; 
 	UPROPERTY(BlueprintReadOnly)
 		bool m_isDead;
-	class ACompleteDoor* m_NearDoor; 
-	class AActor* m_NearActor; 
+	class ACompleteDoor* m_NearDoor;  
 
 	bool m_bNearBox; 
 	

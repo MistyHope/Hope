@@ -119,7 +119,6 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMisted_HopeCharacter::MoveRight);
 	PlayerInputComponent->BindAction("PushObjects", IE_Pressed, this, &AMisted_HopeCharacter::PushObjects);
-	PlayerInputComponent->BindAction("PushObjects", IE_Released, this, &AMisted_HopeCharacter::UnPushObjects);
 	PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AMisted_HopeCharacter::Interaction);
 	PlayerInputComponent->BindAction("Crouch", IE_Pressed, this, &AMisted_HopeCharacter::ToggleCrouch);
 	PlayerInputComponent->BindAction("Crouch", IE_Released, this, &AMisted_HopeCharacter::ToggleCrouch);
@@ -152,13 +151,6 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 		else if (m_bIsPushing)
 		{
 			AddMovementInput(FVector(.2, 0, 0), Value);
-
-			UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
-
-			nearActorPrim->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
-			nearActorPrim->SetSimulatePhysics(true);
-			if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, m_NearActor->GetActorLocation(), m_NearActor->GetActorLocation() + FVector(50 * Value, 0, 0), ECC_WorldStatic))
-				m_NearActor->SetActorLocation(FVector(GetActorLocation().X + m_distToBox, m_NearActor->GetActorLocation().Y, m_NearActor->GetActorLocation().Z));
 		}
 	}
 }
@@ -199,8 +191,12 @@ void AMisted_HopeCharacter::PushObjects()
 {
 	if (!m_bIsPushing && m_bNearBox)
 	{
-		m_distToBox = m_NearActor->GetActorLocation().X - GetActorLocation().X;
+
 		m_bIsPushing = true;
+	}
+	else
+	{
+		m_bIsPushing = false; 
 	}
 }
 
@@ -256,7 +252,6 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	if (box)
 	{
 		m_bNearBox = true;
-		m_NearActor = OtherActor;
 	}
 	if (door)
 	{
@@ -271,11 +266,8 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	ACompleteDoor* door = Cast<ACompleteDoor>(OtherActor);
 	if (box)
 	{
-		UPrimitiveComponent* nearActorPrim = Cast<UPrimitiveComponent>(m_NearActor->GetRootComponent());
-		nearActorPrim->SetSimulatePhysics(false);
 		m_bNearBox = false;
-		m_NearActor = nullptr;
-		m_bIsPushing = false;
+		m_bIsPushing = false; 
 	}
 	if (door)
 	{
@@ -298,7 +290,7 @@ void AMisted_HopeCharacter::UpdateCharacter()
 	const FVector PlayerVelocity = GetVelocity();
 	float TravelDirection = PlayerVelocity.X;
 	// Set the rotation so that the character faces his direction of travel.
-	if (Controller != nullptr)
+	if (Controller != nullptr && !m_bIsPushing)
 	{
 		if (TravelDirection < 0.0f)
 		{
