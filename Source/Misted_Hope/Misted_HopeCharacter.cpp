@@ -108,9 +108,6 @@ void AMisted_HopeCharacter::Tick(float DeltaSeconds)
 		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, m_cameraXOffset, 13), DeltaSeconds, 1);
 	else
 		CameraBoom->SocketOffset = UKismetMathLibrary::VInterpTo(FVector(0, 0, 13), FVector(0, -m_cameraXOffset, 13), DeltaSeconds, 1);
-
-	UE_LOG(LogTemp, Warning, TEXT("Left Push: %s"), m_LeftPush? TEXT("true") : TEXT("false")); 
-	UE_LOG(LogTemp, Warning, TEXT("Right Push: %s"), m_RightPush ? TEXT("true") : TEXT("false"));
 }
 
 
