@@ -5,6 +5,8 @@
 #include "Blueprint/UserWidget.h"
 
 AMisted_HopeGameMode::AMisted_HopeGameMode()
+	:m_MasterVolume(1)
+	,m_EffectVolume(1)
 {
 	// Set default pawn class to our character
 	DefaultPawnClass = AMisted_HopeCharacter::StaticClass();
