@@ -19,5 +19,10 @@ class AMisted_HopeGameMode : public AGameModeBase
 public:
 	AMisted_HopeGameMode();
 
+public: 
+	UPROPERTY(BlueprintReadWrite)
+	float m_MasterVolume; 
+	UPROPERTY(BlueprintReadWrite)
+	float m_EffectVolume; 
 
 };
