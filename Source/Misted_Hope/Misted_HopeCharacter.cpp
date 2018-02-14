@@ -190,12 +190,10 @@ void AMisted_HopeCharacter::ToggleCrouch()
 	if (CanCrouch() && !m_bIsPushing)
 	{
 		Crouch();
-		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchedEyeHeight);
 	}
 	else if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 15, 0), ECC_WorldStatic) && !m_bIsPushing)
 	{
 		UnCrouch();
-		GetCapsuleComponent()->SetCapsuleHalfHeight(m_CharacterHeight);
 	}
 }
 
