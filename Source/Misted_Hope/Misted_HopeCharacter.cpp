@@ -48,6 +48,8 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_LeftPush(false)
 	, m_RightPush(false)
 	,m_PushValue(0)
+	,m_cantWalkRight(false)
+	,m_cantWalkLeft(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -118,7 +120,7 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 {
 
 	// Note: the 'Jump' action and the 'MoveRight' axis are bound to actual keys/buttons/sticks in DefaultInput.ini (editable from Project Settings..Input)
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AMisted_HopeCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAxis("MoveRight", this, &AMisted_HopeCharacter::MoveRight);
 	PlayerInputComponent->BindAction("PushObjects", IE_Pressed, this, &AMisted_HopeCharacter::PushObjects);
@@ -128,19 +130,16 @@ void AMisted_HopeCharacter::SetupPlayerInputComponent(class UInputComponent* Pla
 	PlayerInputComponent->BindAction("Respawn", IE_Pressed, this, &AMisted_HopeCharacter::ResetPlayerAfterDead);
 }
 
+void AMisted_HopeCharacter::Jump()
+{
+	if(!m_bIsPushing)
+		ACharacter::Jump();
+}
+
 void AMisted_HopeCharacter::MoveRight(float Value)
 {
 	if (!m_isDead)
 	{
-		if (Value > 0)
-			m_bLookRight = true;
-		else
-			m_bLookRight = false;
-
-		if (m_LeftPush&& !m_RightPush)
-			m_PushValue = Value; 
-		if (m_RightPush && !m_LeftPush)
-			m_PushValue = -Value; 
 
 
 		FHitResult RV_Hit(ForceInit);
@@ -156,8 +155,22 @@ void AMisted_HopeCharacter::MoveRight(float Value)
 		}
 		else if (m_bIsPushing)
 		{
-			AddMovementInput(FVector(.2, 0, 0), Value);
+			if (m_LeftPush && !m_RightPush)
+				m_PushValue = Value;
+			if (m_RightPush && !m_LeftPush)
+				m_PushValue = -Value;
+
+			if (m_cantWalkLeft && Value < 0)
+				return;
+			else if (m_cantWalkRight && Value > 0)
+				return;
+			else
+				AddMovementInput(FVector(.2f, 0, 0), Value);
 		}
+		if (Value > 0)
+			m_bLookRight = true;
+		else if(Value <0)
+			m_bLookRight = false;
 	}
 }
 
@@ -179,7 +192,7 @@ void AMisted_HopeCharacter::ToggleCrouch()
 		Crouch();
 		GetCapsuleComponent()->SetCapsuleHalfHeight(CrouchedEyeHeight);
 	}
-	else if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 15, 0), ECC_WorldStatic))
+	else if (!GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), GetActorLocation() + FVector(0, GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + 15, 0), ECC_WorldStatic) && !m_bIsPushing)
 	{
 		UnCrouch();
 		GetCapsuleComponent()->SetCapsuleHalfHeight(m_CharacterHeight);

@@ -55,6 +55,10 @@ public:
 		float GetPlayerHope(); 
 	UPROPERTY(BlueprintReadOnly)
 		bool m_bIsPushing; 
+	UPROPERTY(EditAnywhere, Category = Character)
+		bool m_cantWalkRight;
+	UPROPERTY(EditAnywhere, Category = Character)
+		bool m_cantWalkLeft;
 	bool m_bLookRight; 
 	UPROPERTY(BlueprintReadOnly)
 		bool m_gotBottle; 
@@ -106,6 +110,8 @@ public:
 	void UnPushObjects();
 
 	void UpdateCharacter();
+	UFUNCTION()
+		void Jump();
 	UFUNCTION()
 		void PushBack(FVector vec);
 	UFUNCTION()
