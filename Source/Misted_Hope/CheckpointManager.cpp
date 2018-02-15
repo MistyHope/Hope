@@ -30,13 +30,15 @@ void ACheckpointManager::Tick(float DeltaTime)
 
 void ACheckpointManager::SetCheckpoint(const FVector& vec)
 {
+	m_Char = Cast<AMisted_HopeCharacter>(GetWorld()->GetFirstPlayerController()->GetCharacter());
+
 	m_currentCheckpointPos = vec; 
 	m_currentPlayerHope = m_Char->GetPlayerHope();
 
 }
 
-void ACheckpointManager::SetCharacterToCP()
+void ACheckpointManager::SetCharacterToCP(AMisted_HopeCharacter* Character)
 {
-	GetWorld()->GetFirstPlayerController()->GetPawn()->SetActorLocation(m_currentCheckpointPos);
-	m_Char->SetPlayerHope(m_currentPlayerHope);
+	Character->Reset(m_currentCheckpointPos);
+	Character->SetPlayerHope(m_currentPlayerHope);
 }

@@ -49,9 +49,17 @@ void APushableBox::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	FHitResult RV_HIT(ForceInit);
-	if (!GetWorld()->LineTraceSingleByChannel(RV_HIT, GetActorLocation() - FVector(m_RootBox->Bounds.BoxExtent.X, 0, m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() - FVector(m_RootBox->Bounds.BoxExtent.X, 0, (m_RootBox->Bounds.BoxExtent.Z + 10)), ECC_WorldStatic) &&
-		!GetWorld()->LineTraceSingleByChannel(RV_HIT, GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, -m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, (-m_RootBox->Bounds.BoxExtent.Z - 10)), ECC_WorldStatic))
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+	params.AddIgnoredComponent(m_TriggerBoxL);
+	params.AddIgnoredComponent(m_TriggerBoxR);
+	DrawDebugLine(GetWorld(), GetActorLocation() - FVector(m_RootBox->Bounds.BoxExtent.X, 0, m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() - FVector(m_RootBox->Bounds.BoxExtent.X, 0, (m_RootBox->Bounds.BoxExtent.Z + 50)), FColor::Black);
+	DrawDebugLine(GetWorld(), GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, -m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, (-m_RootBox->Bounds.BoxExtent.Z - 50)), FColor::Black);
+
+	if (!GetWorld()->LineTraceSingleByChannel(RV_HIT, GetActorLocation() - FVector(m_RootBox->Bounds.BoxExtent.X, 0, m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() - FVector(m_RootBox->Bounds.BoxExtent.X, 0, (m_RootBox->Bounds.BoxExtent.Z + 5)), ECC_WorldStatic, params) &&
+		!GetWorld()->LineTraceSingleByChannel(RV_HIT, GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, -m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, (-m_RootBox->Bounds.BoxExtent.Z - 5)), ECC_WorldStatic, params))
 	{
+		m_RootBox->DetachFromComponent(FDetachmentTransformRules(FDetachmentTransformRules::KeepWorldTransform));
 		m_RootBox->SetSimulatePhysics(true);
 	}
 	else
@@ -128,11 +136,11 @@ void APushableBox::OnOverlapBeginL(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void APushableBox::OnOverlapEndL(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	AMisted_HopeCharacter* endChar = Cast<AMisted_HopeCharacter>(OtherActor);
-	if (endChar && !m_attached)
+	if (m_Char && !m_attached)
 	{
 		m_pushLeft = false;
 	}
+
 }
 
 void APushableBox::OnOverlapBeginR(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -150,8 +158,8 @@ void APushableBox::OnOverlapBeginR(UPrimitiveComponent* OverlappedComp, AActor* 
 
 void APushableBox::OnOverlapEndR(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	AMisted_HopeCharacter* endChar = Cast<AMisted_HopeCharacter>(OtherActor);
-	if (endChar && !m_attached)
+	
+	if (m_Char && !m_attached)
 	{
 		m_pushRight = false;
 	}

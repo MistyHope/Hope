@@ -47,9 +47,10 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_gotBottle(false)
 	, m_LeftPush(false)
 	, m_RightPush(false)
-	,m_PushValue(0)
-	,m_cantWalkRight(false)
-	,m_cantWalkLeft(false)
+	, m_PushValue(0)
+	, m_cantWalkRight(false)
+	, m_cantWalkLeft(false)
+	, m_getHit(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -252,9 +253,15 @@ void AMisted_HopeCharacter::Hurt(float Value)
 	m_PlayerHope -= Value;
 	if (m_PlayerHope <= 0)
 		m_isDead = true;
+	m_getHit = true; 
+	GetWorldTimerManager().SetTimer(m_timerhandle, this, &AMisted_HopeCharacter::notHurt, .5f);
 	UE_LOG(LogTemp, Warning, TEXT("%i"), m_PlayerHope);
 }
 
+void AMisted_HopeCharacter::notHurt()
+{
+	m_getHit = false; 
+}
 
 void AMisted_HopeCharacter::PushBack(FVector vec)
 {
@@ -306,10 +313,15 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
+void AMisted_HopeCharacter::Reset(FVector location)
+{
+	SetActorLocation(location); 
+}
+
 void AMisted_HopeCharacter::ResetPlayerAfterDead()
 {
 	m_isDead = false;
-	m_CPManager->SetCharacterToCP();
+	m_CPManager->SetCharacterToCP(this);
 }
 
 void AMisted_HopeCharacter::UpdateCharacter()

@@ -30,6 +30,6 @@ public:
 	UFUNCTION()
 		void SetCheckpoint(const FVector& vec); 
 	UFUNCTION()
-		void SetCharacterToCP();
+		void SetCharacterToCP(class AMisted_HopeCharacter* character);
 	
 };

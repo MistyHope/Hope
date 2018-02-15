@@ -13,7 +13,7 @@
 
 ABaseAIController::ABaseAIController()
 	: m_groundOffset(0)
-	, m_maxAttackRange(80)
+	, m_maxAttackRange(150)
 {
 
 }

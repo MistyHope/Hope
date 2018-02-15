@@ -34,7 +34,7 @@ public:
 		float GetCapsuleRadius();
 	UFUNCTION()
 		float GetCapsuleHalfHeight();
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		bool Attack();
 	UFUNCTION()
 		void SwitchCanAttack();
@@ -68,7 +68,8 @@ public:
 		bool m_isPatrolling; 
 	UPROPERTY(EditAnywhere, Category = AI)
 		float m_attentionDelay; 
-
+	UPROPERTY(BlueprintReadOnly)
+		bool m_isAttacking;
 
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
 

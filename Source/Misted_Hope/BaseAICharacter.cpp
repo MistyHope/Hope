@@ -23,6 +23,7 @@ ABaseAICharacter::ABaseAICharacter()
 	, m_canAttack(true)
 	, m_isPatrolling(true)
 	,m_attentionDelay(.8f)
+	,m_isAttacking(false)
 {
 	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -68,7 +69,9 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 		bool hitResult;
 		if (m_char->m_isVisible)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("Is Visible"));
+			UE_LOG(LogTemp, Warning, TEXT("Is Visible %s"), *GetVelocity().ToString());
+			if (GetVelocity().X < 1)
+				TargetIsNotInFOV();
 			if (x.X < GetActorLocation().X && (FVector::Dist(GetActorLocation(), m_char->GetActorLocation()) < m_PawnSensing->SightRadius))
 			{
 				hitResult = GetWorld()->LineTraceSingleByObjectType(RV_Hit, GetActorLocation(), m_char->GetActorLocation(), ECC_WorldStatic);
@@ -123,7 +126,7 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 					case EPathFollowingRequestResult::AlreadyAtGoal:
 						if (m_canAttack)
 						{
-							Attack();
+							m_isAttacking = true; 
 							baseController->StopMovement();
 							m_canAttack = false;
 							GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchCanAttack, m_attackCD);
@@ -143,15 +146,12 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 			return;
 		}
 	}
-	else
-		GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchPatrolling, m_patrolDelay);
-
 }
 
 	void ABaseAICharacter::SwitchCanAttack()
 	{
-
 		m_canAttack = !m_canAttack;
+		m_isAttacking = false; 
 	}
 
 
@@ -164,9 +164,15 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 
 	bool ABaseAICharacter::Attack()
 	{
-		m_char->Hurt(m_Damage);
-		m_char->PushBack(GetActorForwardVector()*m_PushBackForce);
-		return true;
+		if (FVector::Dist(GetActorLocation(), m_char->GetActorLocation()) < m_controller->m_maxAttackRange)
+		{
+			m_char->Hurt(m_Damage);
+			m_char->PushBack(GetActorForwardVector()*m_PushBackForce);
+			m_isAttacking = true;
+			return true;
+		}
+		else
+			return false; 
 	}
 
 	// Called when the game starts or when spawned
@@ -215,8 +221,9 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 	{
 		Super::Tick(DeltaTime);
 
-
-		if (m_isPatrolling)
+		if (m_isAttacking)
+			m_controller->StopMovement();
+		else if (m_isPatrolling && !m_isAttacking)
 			TargetIsNotInFOV();
 
 	}

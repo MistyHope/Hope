@@ -38,6 +38,6 @@ void ASetBack::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 	AMisted_HopeCharacter* character = Cast<AMisted_HopeCharacter>(OtherActor); 
 	if (character)
 	{
-		m_CPManager->SetCharacterToCP();
+		m_CPManager->SetCharacterToCP(character);
 	}
 }

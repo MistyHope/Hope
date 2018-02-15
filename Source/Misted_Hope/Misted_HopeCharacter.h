@@ -87,6 +87,9 @@ public:
 		bool m_RightPush; 
 	bool m_bNearBox; 
 	
+	UPROPERTY(BlueprintReadOnly)
+		bool m_getHit; 
+
 	bool m_bGrounded; 
 
 	UPROPERTY()
@@ -110,6 +113,9 @@ public:
 	void UnPushObjects();
 
 	void UpdateCharacter();
+
+	UFUNCTION()
+		void Reset(FVector location);
 	UFUNCTION()
 		void Jump();
 	UFUNCTION()
@@ -121,6 +127,8 @@ public:
 	UFUNCTION()
 		void Hurt(float value);
 	UFUNCTION()
+		void notHurt(); 
+	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	UFUNCTION()
 		void OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
@@ -131,7 +139,8 @@ public:
 	UFUNCTION(BlueprintCallable) 
 		bool GetStatus() { return m_isDead; }
 
-
+	UPROPERTY()
+		FTimerHandle m_timerhandle; 
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* InputComponent) override;
 	// End of APawn interface
