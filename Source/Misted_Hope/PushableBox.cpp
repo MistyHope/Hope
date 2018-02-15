@@ -13,6 +13,7 @@ APushableBox::APushableBox()
 	, m_pushLeft(false)
 	, m_attached(false)
 	, m_Dist(0)
+	,m_isGrounded(false)
 {
 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -60,10 +61,20 @@ void APushableBox::Tick(float DeltaTime)
 		!GetWorld()->LineTraceSingleByChannel(RV_HIT, GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, -m_RootBox->Bounds.BoxExtent.Z), GetActorLocation() + FVector(m_RootBox->Bounds.BoxExtent.X, 0, (-m_RootBox->Bounds.BoxExtent.Z - 5)), ECC_WorldStatic, params))
 	{
 		m_RootBox->DetachFromComponent(FDetachmentTransformRules(FDetachmentTransformRules::KeepWorldTransform));
+		m_attached = false; 
 		m_RootBox->SetSimulatePhysics(true);
+		m_isGrounded = false; 
+		m_pushLeft = false; 
+		m_pushRight = false; 
+		if(m_Char)
+			m_Char->m_bIsPushing = false; 
+		m_Char = nullptr; 
 	}
 	else
+	{
 		m_RootBox->SetSimulatePhysics(false);
+		m_isGrounded = true;
+	}
 
 	if (m_Char)
 	{
@@ -99,6 +110,9 @@ void APushableBox::Tick(float DeltaTime)
 				m_Char->m_cantWalkRight = false;
 		}
 
+			/*UE_LOG(LogTemp, Warning, TEXT("%s"), m_Char->m_bIsPushing ? TEXT("true") : TEXT("false")); 
+			UE_LOG(LogTemp, Warning, TEXT("%s"), m_attached ? TEXT("true") : TEXT("false"));*/
+
 		if (m_Char->m_bIsPushing && !m_attached)
 		{
 			if (m_pushLeft && m_Char->m_bLookRight)
@@ -125,8 +139,9 @@ void APushableBox::Tick(float DeltaTime)
 void APushableBox::OnOverlapBeginL(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	m_Char = Cast<AMisted_HopeCharacter>(OtherActor);
-	if (m_Char)
+	if (m_Char && m_isGrounded)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WentInPumpkin"));
 		m_RootBox->SetSimulatePhysics(false);
 		m_pushLeft = true;
 
@@ -146,8 +161,9 @@ void APushableBox::OnOverlapEndL(UPrimitiveComponent* OverlappedComp, AActor* Ot
 void APushableBox::OnOverlapBeginR(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	m_Char = Cast<AMisted_HopeCharacter>(OtherActor);
-	if (m_Char)
+	if (m_Char && m_isGrounded)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("WentInPumpkin"));
 		m_RootBox->SetSimulatePhysics(false);
 		m_pushRight = true;
 	}

@@ -51,6 +51,7 @@ AMisted_HopeCharacter::AMisted_HopeCharacter()
 	, m_cantWalkRight(false)
 	, m_cantWalkLeft(false)
 	, m_getHit(false)
+	, isInTrigger(false)
 {
 	// Use only Yaw from the controller and ignore the rest of the rotation.
 	bUseControllerRotationPitch = false;
@@ -212,7 +213,7 @@ void AMisted_HopeCharacter::PushObjects()
 		m_PushValue = 0; 
 		m_bIsPushing = true;
 	}
-	else
+	else if(m_bIsPushing && m_bNearBox)
 	{
 		m_bIsPushing = false; 
 	}
@@ -275,6 +276,7 @@ void AMisted_HopeCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	ACompleteDoor* door = Cast<ACompleteDoor>(OtherActor);
 	if (box)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Hurensohn Mc Hurensohn"));
 		m_bNearBox = true;
 		if (GetActorLocation().X < box->GetActorLocation().X)
 		{
@@ -313,7 +315,7 @@ void AMisted_HopeCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	}
 }
 
-void AMisted_HopeCharacter::Reset(FVector location)
+void AMisted_HopeCharacter::ResetChar(FVector location)
 {
 	SetActorLocation(location); 
 }
@@ -326,7 +328,8 @@ void AMisted_HopeCharacter::ResetPlayerAfterDead()
 
 void AMisted_HopeCharacter::UpdateCharacter()
 {
-
+	if (!m_bNearBox)
+		m_bIsPushing = false; 
 	// Now setup the rotation of the controller based on the direction we are travelling
 	const FVector PlayerVelocity = GetVelocity();
 	float TravelDirection = PlayerVelocity.X;

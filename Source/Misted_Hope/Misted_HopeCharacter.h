@@ -115,7 +115,7 @@ public:
 	void UpdateCharacter();
 
 	UFUNCTION()
-		void Reset(FVector location);
+		void ResetChar(FVector location);
 	UFUNCTION()
 		void Jump();
 	UFUNCTION()
@@ -138,6 +138,9 @@ public:
 		void ResetPlayerAfterDead();
 	UFUNCTION(BlueprintCallable) 
 		bool GetStatus() { return m_isDead; }
+
+	UPROPERTY(BlueprintReadWrite)
+		bool isInTrigger;
 
 	UPROPERTY()
 		FTimerHandle m_timerhandle; 

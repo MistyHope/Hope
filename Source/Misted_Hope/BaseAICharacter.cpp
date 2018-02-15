@@ -202,11 +202,11 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 				GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchPatrolling, m_patrolDelay);
 				break;
 			case EPathFollowingRequestResult::RequestSuccessful:
-				UE_LOG(LogTemp, Warning, TEXT("RequestSuccessful"));
+				//UE_LOG(LogTemp, Warning, TEXT("RequestSuccessful"));
 				m_isPatrolling = true;
 				break;
 			case EPathFollowingRequestResult::Failed:
-				UE_LOG(LogTemp, Warning, TEXT("Failed"));
+				//UE_LOG(LogTemp, Warning, TEXT("Failed"));
 				m_isPatrolling = false;
 				break;
 			}

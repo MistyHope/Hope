@@ -44,6 +44,8 @@ public:
 		bool m_attached; 
 	UPROPERTY()
 		class AMisted_HopeCharacter* m_Char; 
+	UPROPERTY()
+		bool m_isGrounded; 
 
 	UFUNCTION()
 		void OnOverlapBeginL(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);

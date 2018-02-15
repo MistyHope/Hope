@@ -39,6 +39,6 @@ void ACheckpointManager::SetCheckpoint(const FVector& vec)
 
 void ACheckpointManager::SetCharacterToCP(AMisted_HopeCharacter* Character)
 {
-	Character->Reset(m_currentCheckpointPos);
+	Character->ResetChar(m_currentCheckpointPos);
 	Character->SetPlayerHope(m_currentPlayerHope);
 }
