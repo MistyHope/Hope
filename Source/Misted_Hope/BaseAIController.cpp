@@ -54,6 +54,10 @@ EPathFollowingRequestResult::Type ABaseAIController::SetVisibleTarget(APawn* InP
 EPathFollowingRequestResult::Type ABaseAIController::Patrol(uint8 index)
 {
 	EPathFollowingRequestResult::Type result = MoveToActor(m_AITargetPoints[index]);
+
+	if (FVector::Dist((m_AITargetPoints[index]->GetActorLocation()), m_baseAIChar->GetActorLocation())<180)
+		result = EPathFollowingRequestResult::AlreadyAtGoal;
+
 	return result; 
 }
 

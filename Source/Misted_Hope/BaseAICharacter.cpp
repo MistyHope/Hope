@@ -83,7 +83,6 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 				}
 				else
 				{
-
 					EPathFollowingRequestResult::Type result = baseController->SetVisibleTarget(pawn);
 					float dist = FVector::Dist(pawn->GetActorLocation(), GetActorLocation());
 					if (dist <= baseController->m_maxAttackRange)
@@ -167,7 +166,7 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 		if (FVector::Dist(GetActorLocation(), m_char->GetActorLocation()) < m_controller->m_maxAttackRange)
 		{
 			m_char->Hurt(m_Damage);
-			m_char->PushBack(GetActorForwardVector()*m_PushBackForce);
+			m_char->PushBack((GetActorForwardVector()*m_PushBackForce) + (GetActorUpVector() *m_PushBackForce/3));
 			m_isAttacking = true;
 			return true;
 		}
@@ -195,7 +194,6 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 			switch (m_controller->Patrol(m_targetIndex))
 			{
 			case EPathFollowingRequestResult::AlreadyAtGoal:
-				//UE_LOG(LogTemp, Warning, TEXT("AlreadyAtGoal")); 
 				if (m_targetIndex < m_AITargetPoints.Num() - 1)
 					m_targetIndex++;
 				else
@@ -204,11 +202,11 @@ void ABaseAICharacter::TargetIsInFOV(APawn* pawn)
 				GetWorldTimerManager().SetTimer(m_timerHandle, this, &ABaseAICharacter::SwitchPatrolling, m_patrolDelay);
 				break;
 			case EPathFollowingRequestResult::RequestSuccessful:
-				//UE_LOG(LogTemp, Warning, TEXT("RequestSuccessful"));
+				UE_LOG(LogTemp, Warning, TEXT("RequestSuccessful"));
 				m_isPatrolling = true;
 				break;
 			case EPathFollowingRequestResult::Failed:
-				//UE_LOG(LogTemp, Warning, TEXT("Failed"));
+				UE_LOG(LogTemp, Warning, TEXT("Failed"));
 				m_isPatrolling = false;
 				break;
 			}

@@ -70,7 +70,8 @@ public:
 		float m_attentionDelay; 
 	UPROPERTY(BlueprintReadOnly)
 		bool m_isAttacking;
-
+	UPROPERTY()
+		bool m_isChasing;
 	FORCEINLINE TArray<AActor*> GetAvailableTargetPoints() {return m_AITargetPoints;}
 
 
